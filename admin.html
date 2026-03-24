@@ -1,169 +1,198 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
-    #chat { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; }
-    .msg { margin: 5px 0; }
-    #controls { margin-top: 10px; }
-    button { margin-right: 10px; }
+<meta charset="UTF-8">
+<title>Admin</title>
 
-    #dropzone {
-      border: 2px dashed #aaa;
-      padding: 20px;
-      text-align: center;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-    #dropzone:hover {
-      background: #eef;
-    }
-    img.chat-img {
-      max-width: 200px;
-      margin-top: 5px;
-      border-radius: 6px;
-    }
-  </style>
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #0f1115;
+  color: #eee;
+  max-width: 700px;
+  margin: 20px auto;
+}
+
+h1 {
+  text-align: center;
+  color: #ff8c42;
+}
+
+#chat {
+  background: #1a1d24;
+  border-radius: 12px;
+  padding: 15px;
+  height: 420px;
+  overflow-y: auto;
+  box-shadow: 0 0 25px rgba(255,140,66,0.15);
+}
+
+.msg {
+  margin: 10px 0;
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.bot {
+  background: #2a2f3a;
+}
+
+img.chat-img {
+  max-width: 220px;
+  border-radius: 10px;
+}
+
+#controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1a1d24;
+  color: white;
+}
+
+button {
+  background: linear-gradient(135deg, #ff8c42, #ff5e00);
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+#dropzone {
+  border: 2px dashed #ff8c42;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  background: rgba(255,140,66,0.05);
+}
+</style>
 </head>
+
 <body>
-  <h1>Admin – Réponses</h1>
 
-  <div id="chat"></div>
+<h1>Admin – IA</h1>
 
-  <!-- Zone de drop d'image -->
-  <div id="dropzone">
-    Dépose une image ici ou clique pour en choisir une
-    <input type="file" id="fileInput" accept="image/*" style="display:none;">
-  </div>
+<div id="chat"></div>
 
-  <div id="controls">
-    <input id="reply" placeholder="Répondre..." style="width:60%;">
-    <button id="send">Envoyer</button>
-    <button id="aiReply">Réponse IA</button>
-    <button id="clear">Effacer toutes les discussions</button>
-  </div>
+<div id="dropzone">
+  Dépose une image ici ou clique
+  <input type="file" id="fileInput" accept="image/*" hidden>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<div id="controls">
+  <input id="reply" placeholder="Répondre...">
+  <button id="send">Envoyer</button>
+  <button id="aiReply">IA</button>
+  <button id="clear">Clear</button>
+</div>
 
-    const firebaseConfig = {
-      databaseURL: "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/"
-    };
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const messagesRef = ref(db, "messages");
+const firebaseConfig = {
+  databaseURL: "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/"
+};
 
-    const chat = document.getElementById("chat");
-    const reply = document.getElementById("reply");
-    const send = document.getElementById("send");
-    const clear = document.getElementById("clear");
-    const aiReply = document.getElementById("aiReply");
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const messagesRef = ref(db, "messages");
 
-    /* --- Affichage messages --- */
-    onValue(messagesRef, (snapshot) => {
-      const data = snapshot.val();
-      chat.innerHTML = "";
-      for (let id in data) {
-        const m = data[id];
-        const div = document.createElement("div");
-        div.className = "msg";
+const chat = document.getElementById("chat");
+const reply = document.getElementById("reply");
 
-        if (m.image) {
-          const img = document.createElement("img");
-          img.src = m.image;
-          img.className = "chat-img";
-          div.appendChild(img);
-        } else {
-          div.textContent = m.from + " : " + m.text;
-        }
+onValue(messagesRef, (snapshot) => {
+  const data = snapshot.val();
+  chat.innerHTML = "";
 
-        chat.appendChild(div);
-      }
-      chat.scrollTop = chat.scrollHeight;
-    });
+  for (let id in data) {
+    const m = data[id];
+    const div = document.createElement("div");
+    div.className = "msg bot";
 
-    /* --- Envoi texte --- */
-    send.onclick = () => {
-      const text = reply.value.trim();
-      if (!text) return;
-
-      push(messagesRef, { from: "bot", text });
-      reply.value = "";
-    };
-
-    /* --- Effacer --- */
-    clear.onclick = () => {
-      if (confirm("Supprimer toutes les discussions ?")) {
-        remove(messagesRef);
-      }
-    };
-
-    /* --- Réponse IA via Ollama --- */
-    aiReply.onclick = async () => {
-      const snapshot = await get(messagesRef);
-      const data = snapshot.val();
-      const keys = Object.keys(data);
-      const last = data[keys[keys.length - 1]];
-
-      if (last.from !== "user") {
-        alert("Le dernier message n'est pas de l'utilisateur.");
-        return;
-      }
-
-      const response = await fetch("http://localhost:3000/ia", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: last.text })
-      });
-
-      const result = await response.json();
-
-      push(messagesRef, {
-        from: "bot",
-        text: result.reply
-      });
-    };
-
-    /* --- Gestion Dropzone --- */
-    const dropzone = document.getElementById("dropzone");
-    const fileInput = document.getElementById("fileInput");
-
-    dropzone.onclick = () => fileInput.click();
-
-    dropzone.ondragover = (e) => {
-      e.preventDefault();
-      dropzone.style.background = "#eef";
-    };
-
-    dropzone.ondragleave = () => {
-      dropzone.style.background = "transparent";
-    };
-
-    dropzone.ondrop = (e) => {
-      e.preventDefault();
-      dropzone.style.background = "transparent";
-      handleFile(e.dataTransfer.files[0]);
-    };
-
-    fileInput.onchange = () => handleFile(fileInput.files[0]);
-
-    function handleFile(file) {
-      if (!file || !file.type.startsWith("image/")) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        push(messagesRef, {
-          from: "bot",
-          text: "[image]",
-          image: reader.result
-        });
-      };
-      reader.readAsDataURL(file);
+    if (m.image) {
+      const img = document.createElement("img");
+      img.src = m.image;
+      img.className = "chat-img";
+      div.appendChild(img);
+    } else {
+      div.textContent = m.from + " : " + m.text;
     }
-  </script>
+
+    chat.appendChild(div);
+  }
+
+  chat.scrollTop = chat.scrollHeight;
+});
+
+document.getElementById("send").onclick = () => {
+  const text = reply.value.trim();
+  if (!text) return;
+  push(messagesRef, { from: "bot", text });
+  reply.value = "";
+};
+
+document.getElementById("clear").onclick = () => {
+  if (confirm("Tout supprimer ?")) remove(messagesRef);
+};
+
+document.getElementById("aiReply").onclick = async () => {
+  const snapshot = await get(messagesRef);
+  const data = snapshot.val();
+  const keys = Object.keys(data);
+  const last = data[keys[keys.length - 1]];
+
+  if (last.from !== "user") return alert("Dernier message pas user");
+
+  const response = await fetch("http://localhost:3000/ia", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: last.text })
+  });
+
+  const result = await response.json();
+
+  push(messagesRef, { from: "bot", text: result.reply });
+};
+
+/* Dropzone */
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+
+dropzone.onclick = () => fileInput.click();
+
+fileInput.onchange = () => handleFile(fileInput.files[0]);
+
+dropzone.ondrop = (e) => {
+  e.preventDefault();
+  handleFile(e.dataTransfer.files[0]);
+};
+
+function handleFile(file) {
+  if (!file || !file.type.startsWith("image/")) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    push(messagesRef, { from: "bot", image: reader.result });
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
 </body>
 </html>
