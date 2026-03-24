@@ -9,12 +9,34 @@
     .msg { margin: 5px 0; }
     #controls { margin-top: 10px; }
     button { margin-right: 10px; }
+
+    #dropzone {
+      border: 2px dashed #aaa;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    #dropzone:hover {
+      background: #eef;
+    }
+    img.chat-img {
+      max-width: 200px;
+      margin-top: 5px;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
   <h1>Admin – Réponses</h1>
 
   <div id="chat"></div>
+
+  <!-- Zone de drop d'image -->
+  <div id="dropzone">
+    Dépose une image ici ou clique pour en choisir une
+    <input type="file" id="fileInput" accept="image/*" style="display:none;">
+  </div>
 
   <div id="controls">
     <input id="reply" placeholder="Répondre..." style="width:70%;">
@@ -39,7 +61,7 @@
     const send = document.getElementById("send");
     const clear = document.getElementById("clear");
 
-    // Affichage des messages en direct
+    /* --- Affichage messages --- */
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
       chat.innerHTML = "";
@@ -47,31 +69,73 @@
         const m = data[id];
         const div = document.createElement("div");
         div.className = "msg";
-        div.textContent = m.from + " : " + m.text;
+
+        if (m.image) {
+          const img = document.createElement("img");
+          img.src = m.image;
+          img.className = "chat-img";
+          div.appendChild(img);
+        } else {
+          div.textContent = m.from + " : " + m.text;
+        }
+
         chat.appendChild(div);
       }
       chat.scrollTop = chat.scrollHeight;
     });
 
-    // Envoyer une réponse
+    /* --- Envoi texte --- */
     send.onclick = () => {
       const text = reply.value.trim();
       if (!text) return;
 
-      push(messagesRef, {
-        from: "bot",
-        text: text
-      });
-
+      push(messagesRef, { from: "bot", text });
       reply.value = "";
     };
 
-    // Effacer toutes les discussions
+    /* --- Effacer --- */
     clear.onclick = () => {
       if (confirm("Supprimer toutes les discussions ?")) {
         remove(messagesRef);
       }
     };
+
+    /* --- Gestion Dropzone --- */
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+
+    dropzone.onclick = () => fileInput.click();
+
+    dropzone.ondragover = (e) => {
+      e.preventDefault();
+      dropzone.style.background = "#eef";
+    };
+
+    dropzone.ondragleave = () => {
+      dropzone.style.background = "transparent";
+    };
+
+    dropzone.ondrop = (e) => {
+      e.preventDefault();
+      dropzone.style.background = "transparent";
+      handleFile(e.dataTransfer.files[0]);
+    };
+
+    fileInput.onchange = () => handleFile(fileInput.files[0]);
+
+    function handleFile(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        push(messagesRef, {
+          from: "bot",
+          text: "[image]",
+          image: reader.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   </script>
 </body>
 </html>
