@@ -7,6 +7,8 @@
     body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
     #chat { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; }
     .msg { margin: 5px 0; }
+    #controls { margin-top: 10px; }
+    button { margin-right: 10px; }
   </style>
 </head>
 <body>
@@ -14,12 +16,15 @@
 
   <div id="chat"></div>
 
-  <input id="reply" placeholder="Répondre..." style="width:80%;">
-  <button id="send">Envoyer</button>
+  <div id="controls">
+    <input id="reply" placeholder="Répondre..." style="width:70%;">
+    <button id="send">Envoyer</button>
+    <button id="clear">Effacer toutes les discussions</button>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
       databaseURL: "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/"
@@ -32,7 +37,9 @@
     const chat = document.getElementById("chat");
     const reply = document.getElementById("reply");
     const send = document.getElementById("send");
+    const clear = document.getElementById("clear");
 
+    // Affichage des messages en direct
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
       chat.innerHTML = "";
@@ -46,6 +53,7 @@
       chat.scrollTop = chat.scrollHeight;
     });
 
+    // Envoyer une réponse
     send.onclick = () => {
       const text = reply.value.trim();
       if (!text) return;
@@ -56,6 +64,13 @@
       });
 
       reply.value = "";
+    };
+
+    // Effacer toutes les discussions
+    clear.onclick = () => {
+      if (confirm("Supprimer toutes les discussions ?")) {
+        remove(messagesRef);
+      }
     };
   </script>
 </body>
