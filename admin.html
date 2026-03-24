@@ -39,14 +39,15 @@
   </div>
 
   <div id="controls">
-    <input id="reply" placeholder="Répondre..." style="width:70%;">
+    <input id="reply" placeholder="Répondre..." style="width:60%;">
     <button id="send">Envoyer</button>
+    <button id="aiReply">Réponse IA</button>
     <button id="clear">Effacer toutes les discussions</button>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
       databaseURL: "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/"
@@ -60,6 +61,7 @@
     const reply = document.getElementById("reply");
     const send = document.getElementById("send");
     const clear = document.getElementById("clear");
+    const aiReply = document.getElementById("aiReply");
 
     /* --- Affichage messages --- */
     onValue(messagesRef, (snapshot) => {
@@ -98,6 +100,32 @@
       if (confirm("Supprimer toutes les discussions ?")) {
         remove(messagesRef);
       }
+    };
+
+    /* --- Réponse IA via Ollama --- */
+    aiReply.onclick = async () => {
+      const snapshot = await get(messagesRef);
+      const data = snapshot.val();
+      const keys = Object.keys(data);
+      const last = data[keys[keys.length - 1]];
+
+      if (last.from !== "user") {
+        alert("Le dernier message n'est pas de l'utilisateur.");
+        return;
+      }
+
+      const response = await fetch("http://localhost:3000/ia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: last.text })
+      });
+
+      const result = await response.json();
+
+      push(messagesRef, {
+        from: "bot",
+        text: result.reply
+      });
     };
 
     /* --- Gestion Dropzone --- */
