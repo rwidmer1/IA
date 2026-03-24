@@ -1,40 +1,190 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Fake IA</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
-    #chat { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; }
-    .msg { margin: 5px 0; }
-    .user { text-align: right; color: blue; }
-    .bot { text-align: left; color: green; }
+<meta charset="UTF-8">
+<title>Fake IA</title>
 
-    #dropzone {
-      border: 2px dashed #aaa;
-      padding: 20px;
-      text-align: center;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-    #dropzone:hover {
-      background: #eef;
-    }
-    img.chat-img {
-      max-width: 200px;
-      margin-top: 5px;
-      border-radius: 6px;
-    }
-  </style>
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #0f1115;
+  color: #eee;
+  max-width: 700px;
+  margin: 20px auto;
+}
+
+h1 {
+  text-align: center;
+  color: #ff8c42;
+}
+
+h4 {
+  text-align: center;
+  color: #ff8c42;
+}
+
+#chat {
+  background: #1a1d24;
+  border-radius: 12px;
+  padding: 15px;
+  height: 420px;
+  overflow-y: auto;
+  box-shadow: 0 0 25px rgba(255,140,66,0.15);
+}
+
+.msg {
+  margin: 10px 0;
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.user {
+  background: linear-gradient(135deg, #ff8c42, #ff5e00);
+  color: white;
+  margin-left: auto;
+}
+
+.bot {
+  background: #2a2f3a;
+}
+
+img.chat-img {
+  max-width: 220px;
+  border-radius: 10px;
+}
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1a1d24;
+  color: white;
+}
+
+button {
+  background: linear-gradient(135deg, #ff8c42, #ff5e00);
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+#dropzone {
+  border: 2px dashed #ff8c42;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+  background: rgba(255,140,66,0.05);
+}
+</style>
 </head>
+
 <body>
-  <h1>Assistant IA 🤖</h1>
 
-  <div id="chat"></div>
+<h1>Assistant IA</h1>
+<h4>Créé par rwidmer</h4>
 
-  <!-- Zone de drop d'image -->
-  <div id="dropzone">
-    Dépose une image ici ou clique pour en choisir une
+<div id="chat"></div>
+
+<div id="dropzone">
+  Dépose une image ou clique
+  <input type="file" id="fileInput" accept="image/*" hidden>
+</div>
+
+<form id="form">
+  <input id="input" placeholder="Écris ton message..." required>
+  <button>Envoyer</button>
+</form>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  databaseURL: "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const messagesRef = ref(db, "messages");
+
+const chat = document.getElementById("chat");
+
+document.getElementById("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = document.getElementById("input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  push(messagesRef, { from: "user", text });
+  input.value = "";
+});
+
+onValue(messagesRef, (snapshot) => {
+  const data = snapshot.val();
+  chat.innerHTML = "";
+
+  for (let id in data) {
+    const m = data[id];
+    const div = document.createElement("div");
+    div.className = "msg " + (m.from === "user" ? "user" : "bot");
+
+    if (m.image) {
+      const img = document.createElement("img");
+      img.src = m.image;
+      img.className = "chat-img";
+      div.appendChild(img);
+    } else {
+      div.textContent = m.text;
+    }
+
+    chat.appendChild(div);
+  }
+
+  chat.scrollTop = chat.scrollHeight;
+});
+
+/* Dropzone */
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+
+dropzone.onclick = () => fileInput.click();
+
+fileInput.onchange = () => handleFile(fileInput.files[0]);
+
+dropzone.ondrop = (e) => {
+  e.preventDefault();
+  handleFile(e.dataTransfer.files[0]);
+};
+
+function handleFile(file) {
+  if (!file || !file.type.startsWith("image/")) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    push(messagesRef, { from: "user", image: reader.result });
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>    Dépose une image ici ou clique pour en choisir une
     <input type="file" id="fileInput" accept="image/*" style="display:none;">
   </div>
 
