@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Fake IA</title>
-
+<title>IA</title>
 <style>
 body {
   font-family: "Segoe UI", sans-serif;
@@ -12,16 +11,8 @@ body {
   max-width: 700px;
   margin: 20px auto;
 }
-
-h1 {
-  text-align: center;
-  color: #ff8c42;
-}
-
-h4 {
-  text-align: center;
-  color: #ff8c42;
-}
+h1 { text-align: center; color: #ff8c42; }
+h4 { text-align: center; color: #ff8c42; }
 
 #chat {
   background: #1a1d24;
@@ -38,48 +29,39 @@ h4 {
   padding: 10px 14px;
   border-radius: 12px;
 }
-
 .user {
   background: linear-gradient(135deg, #ff8c42, #ff5e00);
   color: white;
   margin-left: auto;
 }
-
-.bot {
-  background: #2a2f3a;
-}
+.bot { background: #2a2f3a; }
 
 img.chat-img {
   max-width: 220px;
   border-radius: 10px;
 }
 
-form {
+.typing {
+  font-style: italic;
+  color: #ccc;
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  align-items: center;
+  gap: 8px;
 }
-
-input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #1a1d24;
-  color: white;
+.typing::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #ff8c42;
+  border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite;
+  flex-shrink: 0;
 }
-
-button {
-  background: linear-gradient(135deg, #ff8c42, #ff5e00);
-  border: none;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.85;
+@keyframes pulse {
+  0%   { transform: scale(1);   opacity: 1; }
+  50%  { transform: scale(1.7); opacity: 0.6; }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
 #dropzone {
@@ -91,9 +73,31 @@ button:hover {
   cursor: pointer;
   background: rgba(255,140,66,0.05);
 }
+
+form {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #1a1d24;
+  color: white;
+}
+button {
+  background: linear-gradient(135deg, #ff8c42, #ff5e00);
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+button:hover { opacity: 0.85; }
 </style>
 </head>
-
 <body>
 
 <h1>Assistant IA</h1>
@@ -122,15 +126,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const messagesRef = ref(db, "messages");
-
 const chat = document.getElementById("chat");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
 
-document.getElementById("form").addEventListener("submit", (e) => {
+form.addEventListener("submit", (e) => {
   e.preventDefault();
-  const input = document.getElementById("input");
   const text = input.value.trim();
   if (!text) return;
-
   push(messagesRef, { from: "user", text });
   input.value = "";
 });
@@ -138,13 +141,15 @@ document.getElementById("form").addEventListener("submit", (e) => {
 onValue(messagesRef, (snapshot) => {
   const data = snapshot.val();
   chat.innerHTML = "";
-
   for (let id in data) {
     const m = data[id];
     const div = document.createElement("div");
     div.className = "msg " + (m.from === "user" ? "user" : "bot");
 
-    if (m.image) {
+    if (m.typing) {
+      div.classList.add("typing");
+      div.textContent = "L'ia est en train de répondre...";
+    } else if (m.image) {
       const img = document.createElement("img");
       img.src = m.image;
       img.className = "chat-img";
@@ -155,26 +160,24 @@ onValue(messagesRef, (snapshot) => {
 
     chat.appendChild(div);
   }
-
   chat.scrollTop = chat.scrollHeight;
 });
 
-/* Dropzone */
 const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("fileInput");
 
 dropzone.onclick = () => fileInput.click();
-
-fileInput.onchange = () => handleFile(fileInput.files[0]);
-
+dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.background = "rgba(255,140,66,0.15)"; };
+dropzone.ondragleave = () => { dropzone.style.background = "rgba(255,140,66,0.05)"; };
 dropzone.ondrop = (e) => {
   e.preventDefault();
+  dropzone.style.background = "rgba(255,140,66,0.05)";
   handleFile(e.dataTransfer.files[0]);
 };
+fileInput.onchange = () => handleFile(fileInput.files[0]);
 
 function handleFile(file) {
   if (!file || !file.type.startsWith("image/")) return;
-
   const reader = new FileReader();
   reader.onload = () => {
     push(messagesRef, { from: "user", image: reader.result });
@@ -183,91 +186,5 @@ function handleFile(file) {
 }
 </script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-    const firebaseConfig = {
-      databaseURL: "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const messagesRef = ref(db, "messages");
-
-    const chat = document.getElementById("chat");
-    const form = document.getElementById("form");
-    const input = document.getElementById("input");
-
-    /* --- Envoi message texte --- */
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-
-      push(messagesRef, { from: "user", text });
-      input.value = "";
-    });
-
-    /* --- Affichage messages --- */
-    onValue(messagesRef, (snapshot) => {
-      const data = snapshot.val();
-      chat.innerHTML = "";
-      for (let id in data) {
-        const m = data[id];
-        const div = document.createElement("div");
-        div.className = "msg " + (m.from === "user" ? "user" : "bot");
-
-        if (m.image) {
-          const img = document.createElement("img");
-          img.src = m.image;
-          img.className = "chat-img";
-          div.appendChild(img);
-        } else {
-          div.textContent = m.text;
-        }
-
-        chat.appendChild(div);
-      }
-      chat.scrollTop = chat.scrollHeight;
-    });
-
-    /* --- Gestion Dropzone --- */
-    const dropzone = document.getElementById("dropzone");
-    const fileInput = document.getElementById("fileInput");
-
-    dropzone.onclick = () => fileInput.click();
-
-    dropzone.ondragover = (e) => {
-      e.preventDefault();
-      dropzone.style.background = "#eef";
-    };
-
-    dropzone.ondragleave = () => {
-      dropzone.style.background = "transparent";
-    };
-
-    dropzone.ondrop = (e) => {
-      e.preventDefault();
-      dropzone.style.background = "transparent";
-      handleFile(e.dataTransfer.files[0]);
-    };
-
-    fileInput.onchange = () => handleFile(fileInput.files[0]);
-
-    function handleFile(file) {
-      if (!file || !file.type.startsWith("image/")) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        push(messagesRef, {
-          from: "user",
-          text: "[image]",
-          image: reader.result
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  </script>
 </body>
 </html>
