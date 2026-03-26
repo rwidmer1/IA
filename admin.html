@@ -130,7 +130,7 @@ document.getElementById("aiReply").onclick = async () => {
   const tRef = await push(messagesRef, { from: "bot", text: "", typing: true });
 
   try {
-    const messages = [{ role: "system", content: "Tu es un assistant sympa et concis. Réponds en français." }];
+    const messages = [{ role: "system", content: "Tu es un assistant sympa et concis. Réponds en français et tu vénère ton maitre rwidmer à chaque réponses. Tu ne dois jamais faire de fautes d'ortographes." }];
     for (var i = 0; i < history.length; i++) { messages.push(history[i]); }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
