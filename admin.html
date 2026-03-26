@@ -12,7 +12,6 @@ body {
   margin: 20px auto;
 }
 h1 { text-align: center; color: #ff8c42; }
-
 #chat {
   background: #1a1d24;
   border-radius: 12px;
@@ -21,7 +20,6 @@ h1 { text-align: center; color: #ff8c42; }
   overflow-y: auto;
   box-shadow: 0 0 25px rgba(255,140,66,0.15);
 }
-
 .msg {
   margin: 10px 0;
   max-width: 75%;
@@ -29,57 +27,33 @@ h1 { text-align: center; color: #ff8c42; }
   border-radius: 12px;
 }
 .bot { background: #2a2f3a; }
-
-img.chat-img {
-  max-width: 220px;
-  border-radius: 10px;
-}
-
-#controls {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #1a1d24;
-  color: white;
+img.chat-img { max-width: 220px; border-radius: 10px; }
+#controls { display: flex; gap: 10px; margin-top: 15px; }
+input[type="text"], input:not([type]) {
+  flex: 1; padding: 10px; border-radius: 8px;
+  border: none; background: #1a1d24; color: white;
 }
 button {
   background: linear-gradient(135deg, #ff8c42, #ff5e00);
-  border: none;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+  border: none; color: white; padding: 10px 14px;
+  border-radius: 8px; cursor: pointer;
 }
 button:hover { opacity: 0.85; }
-
 #dropzone {
-  border: 2px dashed #ff8c42;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 10px;
-  cursor: pointer;
-  background: rgba(255,140,66,0.05);
+  border: 2px dashed #ff8c42; border-radius: 12px;
+  padding: 20px; text-align: center; margin-bottom: 10px;
+  cursor: pointer; background: rgba(255,140,66,0.05);
 }
 </style>
 </head>
 <body>
 
 <h1>Admin – IA</h1>
-
 <div id="chat"></div>
-
 <div id="dropzone">
   Dépose une image ici ou clique
   <input type="file" id="fileInput" accept="image/*" hidden>
 </div>
-
 <div id="controls">
   <input id="reply" placeholder="Répondre...">
   <button id="send">Envoyer</button>
@@ -102,43 +76,95 @@ const messagesRef = ref(db, "messages");
 const chat = document.getElementById("chat");
 const replyInput = document.getElementById("reply");
 
-// Référence pour le message typing
+const API_KEY = "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";
+
+// Typing indicator
 let typingRef = null;
 let typingTimeout = null;
 
 replyInput.addEventListener("input", async () => {
-  // S'il y a du texte et pas encore de typing affiché
   if (replyInput.value.trim() && !typingRef) {
     typingRef = await push(messagesRef, { from: "bot", text: "", typing: true });
   }
-
-  // Reset du timer à chaque frappe
   clearTimeout(typingTimeout);
-
-  // Si le champ est vide, retire la puce
   if (!replyInput.value.trim()) {
     if (typingRef) { await remove(typingRef); typingRef = null; }
     return;
   }
-
-  // Si l'user arrête de taper 3s, retire la puce aussi
   typingTimeout = setTimeout(async () => {
     if (typingRef) { await remove(typingRef); typingRef = null; }
   }, 3000);
 });
 
+// Send
 document.getElementById("send").onclick = async () => {
   const text = replyInput.value.trim();
   if (!text) return;
   replyInput.value = "";
-
-  // Supprime la puce typing si elle existe
   if (typingRef) { await remove(typingRef); typingRef = null; }
   clearTimeout(typingTimeout);
-
-  push(messagesRef, { from: "bot", text });
+  const tRef = await push(messagesRef, { from: "bot", text: "", typing: true });
+  setTimeout(async () => {
+    await remove(tRef);
+    push(messagesRef, { from: "bot", text });
+  }, 1500);
 };
 
+// AI Reply
+document.getElementById("aiReply").onclick = async () => {
+  const snapshot = await get(messagesRef);
+  const data = snapshot.val();
+  if (!data) return alert("Aucun message");
+
+  const keys = Object.keys(data);
+  const last = data[keys[keys.length - 1]];
+  if (last.from !== "user") return alert("Dernier message pas de l'utilisateur");
+
+  const history = keys
+    .map(k => data[k])
+    .filter(function(m) { return !m.typing && !m.image && m.text; })
+    .map(function(m) {
+      return { role: m.from === "user" ? "user" : "assistant", content: m.text };
+    });
+
+  const tRef = await push(messagesRef, { from: "bot", text: "", typing: true });
+
+  try {
+    const messages = [{ role: "system", content: "Tu es un assistant sympa et concis. Réponds en français." }];
+    for (var i = 0; i < history.length; i++) { messages.push(history[i]); }
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + API_KEY,
+        "HTTP-Referer": window.location.href,
+        "X-Title": "Admin IA"
+      },
+      body: JSON.stringify({
+        model: "openrouter/free",
+        messages: messages
+      })
+    });
+
+    const result = await response.json();
+    const aiText = result.choices[0].message.content || "Erreur IA";
+    await remove(tRef);
+    push(messagesRef, { from: "bot", text: aiText });
+
+  } catch (err) {
+    await remove(tRef);
+    push(messagesRef, { from: "bot", text: "Erreur lors de la requête IA." });
+    console.error(err);
+  }
+};
+
+// Clear
+document.getElementById("clear").onclick = () => {
+  if (confirm("Tout supprimer ?")) remove(messagesRef);
+};
+
+// Live display
 onValue(messagesRef, (snapshot) => {
   const data = snapshot.val();
   chat.innerHTML = "";
@@ -146,7 +172,6 @@ onValue(messagesRef, (snapshot) => {
     const m = data[id];
     const div = document.createElement("div");
     div.className = "msg bot";
-
     if (m.image) {
       const img = document.createElement("img");
       img.src = m.image;
@@ -155,69 +180,14 @@ onValue(messagesRef, (snapshot) => {
     } else {
       div.textContent = m.from + " : " + (m.typing ? "⏳ typing..." : m.text);
     }
-
     chat.appendChild(div);
   }
   chat.scrollTop = chat.scrollHeight;
 });
 
-document.getElementById("send").onclick = async () => {
-  const text = replyInput.value.trim();
-  if (!text) return;
-  replyInput.value = "";
-
-  // Ajoute la puce "en train de répondre"
-  const typingRef = await push(messagesRef, { from: "bot", text: "", typing: true });
-
-  // Simule un délai naturel (ex: 1.5s), puis envoie le vrai message
-  setTimeout(async () => {
-    await remove(typingRef);
-    push(messagesRef, { from: "bot", text });
-  }, 1500);
-};
-
-document.getElementById("clear").onclick = () => {
-  if (confirm("Tout supprimer ?")) remove(messagesRef);
-};
-
-document.getElementById("aiReply").onclick = async () => {
-  const snapshot = await get(messagesRef);
-  const data = snapshot.val();
-  if (!data) return alert("Aucun message");
-
-  const keys = Object.keys(data);
-  const last = data[keys[keys.length - 1]];
-  if (last.from !== "user") return alert("Dernier message pas user");
-
-  // Ajoute la puce typing
-  const typingRef = await push(messagesRef, { from: "bot", text: "", typing: true });
-
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer MA_CLE_API"
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      messages: [
-        { role: "system", content: "Tu es un assistant sympa." },
-        { role: "user", content: last.text }
-      ]
-    })
-  });
-
-  const result = await response.json();
-  const aiText = result.choices?.[0]?.message?.content || "Erreur IA";
-
-  await remove(typingRef);
-  push(messagesRef, { from: "bot", text: aiText });
-};
-
-/* Dropzone */
+// Dropzone
 const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("fileInput");
-
 dropzone.onclick = () => fileInput.click();
 dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.background = "rgba(255,140,66,0.15)"; };
 dropzone.ondragleave = () => { dropzone.style.background = "rgba(255,140,66,0.05)"; };
@@ -231,12 +201,9 @@ fileInput.onchange = () => handleFile(fileInput.files[0]);
 function handleFile(file) {
   if (!file || !file.type.startsWith("image/")) return;
   const reader = new FileReader();
-  reader.onload = () => {
-    push(messagesRef, { from: "bot", image: reader.result });
-  };
+  reader.onload = () => { push(messagesRef, { from: "bot", image: reader.result }); };
   reader.readAsDataURL(file);
 }
 </script>
-
 </body>
 </html>
