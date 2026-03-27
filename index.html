@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>IA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant IA</title>
 <style>
 body {
   font-family: "Segoe UI", sans-serif;
@@ -10,10 +11,85 @@ body {
   color: #eee;
   max-width: 700px;
   margin: 20px auto;
+  padding: 0 10px;
 }
 h1 { text-align: center; color: #ff8c42; }
 h4 { text-align: center; color: #ff8c42; }
 
+/* ─── AUTH ─── */
+.auth-box {
+  background: #1a1d24;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 0 25px rgba(255,140,66,0.15);
+  max-width: 420px;
+  margin: 0 auto;
+}
+.auth-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: none;
+  background: #2a2f3a;
+  color: #aaa;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.auth-tab.active {
+  background: linear-gradient(135deg, #ff8c42, #ff5e00);
+  color: white;
+}
+.form-group { margin-bottom: 12px; }
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2a2f3a;
+  color: #eee;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.form-group select option { background: #2a2f3a; }
+.auth-error { color: #e05555; font-size: 0.8rem; margin-top: 8px; min-height: 18px; text-align: center; }
+.auth-success { color: #5dde6a; font-size: 0.8rem; margin-top: 8px; min-height: 18px; text-align: center; }
+
+/* ─── CHAT ─── */
+#chatSection { display: none; }
+#appHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+#appHeader h1 { margin: 0; }
+.logout-btn {
+  background: #2a2f3a;
+  border: none;
+  color: #aaa;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: "Segoe UI", sans-serif;
+}
+.logout-btn:hover { color: #e05555; }
 #chat {
   background: #1a1d24;
   border-radius: 12px;
@@ -22,7 +98,6 @@ h4 { text-align: center; color: #ff8c42; }
   overflow-y: auto;
   box-shadow: 0 0 25px rgba(255,140,66,0.15);
 }
-
 .msg {
   margin: 10px 0;
   max-width: 75%;
@@ -35,12 +110,10 @@ h4 { text-align: center; color: #ff8c42; }
   margin-left: auto;
 }
 .bot { background: #2a2f3a; }
-
 img.chat-img {
   max-width: 220px;
   border-radius: 10px;
 }
-
 .typing {
   font-style: italic;
   color: #ccc;
@@ -51,8 +124,7 @@ img.chat-img {
 .typing::before {
   content: "";
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 10px; height: 10px;
   background: #ff8c42;
   border-radius: 50%;
   animation: pulse 1.2s ease-in-out infinite;
@@ -63,31 +135,72 @@ img.chat-img {
   50%  { transform: scale(1.7); opacity: 0.6; }
   100% { transform: scale(1);   opacity: 1; }
 }
-
 #dropzone {
   border: 2px dashed #ff8c42;
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  margin-bottom: 10px;
+  margin: 10px 0;
   cursor: pointer;
   background: rgba(255,140,66,0.05);
+  color: #aaa;
+  font-size: 0.85rem;
 }
+#dropzone:hover { background: rgba(255,140,66,0.1); color: #ff8c42; }
 
-form {
+/* ─── VERIFY ─── */
+#verifySection { display: none; }
+.verify-box { text-align: center; }
+.verify-box .verify-icon { font-size: 2.5rem; margin-bottom: 14px; }
+.verify-box h3 { color: #ff8c42; margin-bottom: 10px; }
+.verify-box p { color: #aaa; font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px; }
+.verify-box .email-highlight { color: #ff8c42; font-weight: 600; }
+
+/* ─── SHARED BUTTONS ─── */
+button.btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #ff8c42, #ff5e00);
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 6px;
+}
+button.btn:hover { opacity: 0.85; }
+button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+button.btn-ghost {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #2a2f3a;
+  background: transparent;
+  color: #aaa;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 6px;
+}
+button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
+
+/* ─── FORM BOTTOM ─── */
+#inputRow {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 10px;
 }
-input {
+#inputRow input {
   flex: 1;
   padding: 10px;
   border-radius: 8px;
   border: none;
   background: #1a1d24;
   color: white;
+  font-family: "Segoe UI", sans-serif;
 }
-button {
+#inputRow button {
   background: linear-gradient(135deg, #ff8c42, #ff5e00);
   border: none;
   color: white;
@@ -95,7 +208,9 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
-button:hover { opacity: 0.85; }
+#inputRow button:hover { opacity: 0.85; }
+
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -103,88 +218,345 @@ button:hover { opacity: 0.85; }
 <h1>Assistant IA</h1>
 <h4>Créé par rwidmer</h4>
 
-<div id="chat"></div>
+<!-- ══ AUTH ══ -->
+<div id="authSection">
+  <div class="auth-box">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="showTab('login')">Connexion</button>
+      <button class="auth-tab" id="tabRegister" onclick="showTab('register')">Inscription</button>
+    </div>
 
-<div id="dropzone">
-  Dépose une image ou clique
-  <input type="file" id="fileInput" accept="image/*" hidden>
+    <!-- Login -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="ton@email.com">
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <button class="btn" id="loginBtn" onclick="doLogin()">Se connecter</button>
+      <div class="auth-error" id="loginError"></div>
+    </div>
+
+    <!-- Register -->
+    <div id="registerForm" class="hidden">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prénom</label>
+          <input type="text" id="regFirstName" placeholder="Jean">
+        </div>
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" id="regLastName" placeholder="Dupont">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Pseudo</label>
+        <input type="text" id="regUsername" placeholder="@pseudo">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="ton@email.com">
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="regPassword" placeholder="8 caractères minimum">
+      </div>
+      <div class="form-group">
+        <label>Date de naissance</label>
+        <input type="date" id="regDob">
+      </div>
+      <div class="form-group">
+        <label>Pays</label>
+        <select id="regCountry">
+          <option value="">-- Sélectionner --</option>
+          <option>France</option><option>Suisse</option><option>Belgique</option>
+          <option>Canada</option><option>Luxembourg</option><option>Maroc</option>
+          <option>Algérie</option><option>Tunisie</option><option>Sénégal</option>
+          <option>Côte d'Ivoire</option><option>Allemagne</option><option>Espagne</option>
+          <option>Italie</option><option>Portugal</option><option>Royaume-Uni</option>
+          <option>États-Unis</option><option>Autre</option>
+        </select>
+      </div>
+      <button class="btn" id="registerBtn" onclick="doRegister()">Créer mon compte</button>
+      <div class="auth-error" id="registerError"></div>
+    </div>
+  </div>
 </div>
 
-<form id="form">
-  <input id="input" placeholder="Écris ton message..." required>
-  <button>Envoyer</button>
-</form>
+<!-- ══ VERIFY ══ -->
+<div id="verifySection">
+  <div class="auth-box">
+    <div class="verify-box">
+      <div class="verify-icon">📨</div>
+      <h3>Vérifie ton email</h3>
+      <p>Un lien de vérification a été envoyé à<br>
+        <span class="email-highlight" id="verifyEmailDisplay"></span><br><br>
+        Clique sur le lien, puis reviens ici.
+      </p>
+      <button class="btn" onclick="checkVerified()">✓ J'ai vérifié mon email</button>
+      <button class="btn-ghost" onclick="resendVerification()">Renvoyer l'email</button>
+      <button class="btn-ghost" onclick="backToLogin()">← Retour connexion</button>
+      <div class="auth-error" id="verifyError"></div>
+      <div class="auth-success" id="verifySuccess"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHAT ══ -->
+<div id="chatSection">
+  <div id="appHeader">
+    <h1 style="margin:0">Assistant IA</h1>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span id="headerUsername" style="color:#ff8c42;font-size:0.9rem"></span>
+      <button class="logout-btn" onclick="doLogout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div id="chat"></div>
+
+  <div id="dropzone">
+    📎 Dépose une image ou clique pour joindre
+    <input type="file" id="fileInput" accept="image/*" multiple hidden>
+  </div>
+
+  <div id="inputRow">
+    <input id="msgInput" placeholder="Écris ton message..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button onclick="sendMessage()">Envoyer</button>
+  </div>
+</div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, push, onValue }        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import {
+  getAuth, createUserWithEmailAndPassword,
+  signInWithEmailAndPassword, sendEmailVerification,
+  onAuthStateChanged, signOut, reload
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc }      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  databaseURL: "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/"
+  apiKey:            "AIzaSyA_B2JH5kcukD4tUFjWGiGYFheVyAzCxfk",
+  authDomain:        "aifake-3ed4f.firebaseapp.com",
+  databaseURL:       "https://aifake-3ed4f-default-rtdb.europe-west1.firebasedatabase.app/",
+  projectId:         "aifake-3ed4f",
+  storageBucket:     "aifake-3ed4f.appspot.com",
+  messagingSenderId: "219277230015",
+  appId:             "1:219277230015:web:e3409e1448e36c5a07eb0a"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const messagesRef = ref(db, "messages");
-const chat = document.getElementById("chat");
-const form = document.getElementById("form");
-const input = document.getElementById("input");
+const app   = initializeApp(firebaseConfig);
+const auth  = getAuth(app);
+const db    = getDatabase(app);
+const store = getFirestore(app);
+let currentUser = null;
+let pendingImages = [];
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const text = input.value.trim();
-  if (!text) return;
-  push(messagesRef, { from: "user", text });
-  input.value = "";
+/* ─── SECTIONS ─── */
+function showAuth()   {
+  document.getElementById("authSection").style.display   = "block";
+  document.getElementById("verifySection").style.display = "none";
+  document.getElementById("chatSection").style.display   = "none";
+}
+function showVerify(email) {
+  document.getElementById("authSection").style.display   = "none";
+  document.getElementById("verifySection").style.display = "block";
+  document.getElementById("chatSection").style.display   = "none";
+  document.getElementById("verifyEmailDisplay").textContent = email;
+}
+function showChat(user, profile) {
+  document.getElementById("authSection").style.display   = "none";
+  document.getElementById("verifySection").style.display = "none";
+  document.getElementById("chatSection").style.display   = "block";
+  const pseudo = profile.username || user.email.split("@")[0];
+  document.getElementById("headerUsername").textContent = "@" + pseudo;
+  const msgsRef = ref(db, `conversations/${user.uid}/messages`);
+  onValue(msgsRef, snap => renderChat(snap.val() || {}));
+}
+
+/* ─── AUTH STATE ─── */
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    await reload(user);
+    if (user.emailVerified) {
+      currentUser = user;
+      const snap = await getDoc(doc(store, "users", user.uid));
+      showChat(user, snap.exists() ? snap.data() : {});
+    } else {
+      showVerify(user.email);
+    }
+  } else {
+    showAuth();
+  }
 });
 
-onValue(messagesRef, (snapshot) => {
-  const data = snapshot.val();
+/* ─── TAB SWITCH ─── */
+window.showTab = function(tab) {
+  const isLogin = tab === "login";
+  document.getElementById("loginForm").classList.toggle("hidden", !isLogin);
+  document.getElementById("registerForm").classList.toggle("hidden", isLogin);
+  document.getElementById("tabLogin").classList.toggle("active", isLogin);
+  document.getElementById("tabRegister").classList.toggle("active", !isLogin);
+  document.getElementById("loginError").textContent = "";
+  document.getElementById("registerError").textContent = "";
+};
+
+/* ─── REGISTER ─── */
+window.doRegister = async function() {
+  const btn = document.getElementById("registerBtn");
+  const err = document.getElementById("registerError");
+  err.textContent = "";
+  const firstName = document.getElementById("regFirstName").value.trim();
+  const lastName  = document.getElementById("regLastName").value.trim();
+  const username  = document.getElementById("regUsername").value.trim().replace(/^@/, "");
+  const email     = document.getElementById("regEmail").value.trim();
+  const password  = document.getElementById("regPassword").value;
+  const dob       = document.getElementById("regDob").value;
+  const country   = document.getElementById("regCountry").value;
+  if (!firstName || !lastName || !username || !email || !password || !dob || !country)
+    return err.textContent = "Tous les champs sont obligatoires.";
+  if (password.length < 8) return err.textContent = "Mot de passe trop court (8 car. min).";
+  if (username.length < 3) return err.textContent = "Pseudo trop court (3 car. min).";
+  btn.disabled = true; btn.textContent = "Création…";
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(store, "users", cred.user.uid), { firstName, lastName, username, email, dob, country, createdAt: Date.now() });
+    await setDoc(doc(store, "userList", cred.user.uid), { firstName, lastName, username, email, country, uid: cred.user.uid });
+    await sendEmailVerification(cred.user);
+    showVerify(email);
+  } catch(e) {
+    err.textContent = firebaseError(e.code);
+  } finally {
+    btn.disabled = false; btn.textContent = "Créer mon compte";
+  }
+};
+
+/* ─── LOGIN ─── */
+window.doLogin = async function() {
+  const btn = document.getElementById("loginBtn");
+  const err = document.getElementById("loginError");
+  err.textContent = "";
+  const email    = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  if (!email || !password) return err.textContent = "Remplis tous les champs.";
+  btn.disabled = true; btn.textContent = "Connexion…";
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    if (!cred.user.emailVerified) showVerify(email);
+  } catch(e) {
+    err.textContent = firebaseError(e.code);
+  } finally {
+    btn.disabled = false; btn.textContent = "Se connecter";
+  }
+};
+
+/* ─── VERIFY ─── */
+window.checkVerified = async function() {
+  const err = document.getElementById("verifyError");
+  const suc = document.getElementById("verifySuccess");
+  err.textContent = ""; suc.textContent = "";
+  try {
+    await reload(auth.currentUser);
+    if (auth.currentUser.emailVerified) {
+      suc.textContent = "✓ Email vérifié !";
+      setTimeout(() => location.reload(), 800);
+    } else {
+      err.textContent = "Email pas encore vérifié.";
+    }
+  } catch(e) { err.textContent = "Erreur. Réessaie."; }
+};
+window.resendVerification = async function() {
+  const suc = document.getElementById("verifySuccess");
+  const err = document.getElementById("verifyError");
+  suc.textContent = ""; err.textContent = "";
+  try {
+    await sendEmailVerification(auth.currentUser);
+    suc.textContent = "✓ Email renvoyé !";
+  } catch(e) { err.textContent = "Attends quelques minutes avant de réessayer."; }
+};
+window.backToLogin = async function() {
+  await signOut(auth); showAuth();
+};
+
+/* ─── LOGOUT ─── */
+window.doLogout = async function() {
+  await signOut(auth);
+  currentUser = null;
+  pendingImages = [];
+  document.getElementById("chat").innerHTML = "";
+};
+
+/* ─── CHAT RENDER ─── */
+function renderChat(data) {
+  const chat = document.getElementById("chat");
   chat.innerHTML = "";
   for (let id in data) {
     const m = data[id];
     const div = document.createElement("div");
     div.className = "msg " + (m.from === "user" ? "user" : "bot");
-
     if (m.typing) {
       div.classList.add("typing");
       div.textContent = "L'ia est en train de répondre...";
     } else if (m.image) {
       const img = document.createElement("img");
-      img.src = m.image;
-      img.className = "chat-img";
+      img.src = m.image; img.className = "chat-img";
       div.appendChild(img);
     } else {
-      div.textContent = m.text;
+      div.textContent = m.text || "";
     }
-
     chat.appendChild(div);
   }
   chat.scrollTop = chat.scrollHeight;
-});
+}
 
+/* ─── SEND ─── */
+window.sendMessage = async function() {
+  if (!currentUser) return;
+  const input = document.getElementById("msgInput");
+  const text = input.value.trim();
+  if (!text && pendingImages.length === 0) return;
+  input.value = "";
+  const msgsRef = ref(db, `conversations/${currentUser.uid}/messages`);
+  const imgs = [...pendingImages]; pendingImages = [];
+  if (text) await push(msgsRef, { from: "user", text, ts: Date.now() });
+  for (const img of imgs) await push(msgsRef, { from: "user", image: img, ts: Date.now() });
+};
+
+/* ─── DROPZONE ─── */
 const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("fileInput");
-
 dropzone.onclick = () => fileInput.click();
-dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.background = "rgba(255,140,66,0.15)"; };
+dropzone.ondragover = e => { e.preventDefault(); dropzone.style.background = "rgba(255,140,66,0.15)"; };
 dropzone.ondragleave = () => { dropzone.style.background = "rgba(255,140,66,0.05)"; };
-dropzone.ondrop = (e) => {
-  e.preventDefault();
-  dropzone.style.background = "rgba(255,140,66,0.05)";
-  handleFile(e.dataTransfer.files[0]);
-};
-fileInput.onchange = () => handleFile(fileInput.files[0]);
-
+dropzone.ondrop = e => { e.preventDefault(); dropzone.style.background = "rgba(255,140,66,0.05)"; [...e.dataTransfer.files].forEach(handleFile); };
+fileInput.onchange = () => { [...fileInput.files].forEach(handleFile); fileInput.value = ""; };
 function handleFile(file) {
   if (!file || !file.type.startsWith("image/")) return;
   const reader = new FileReader();
-  reader.onload = () => {
-    push(messagesRef, { from: "user", image: reader.result });
-  };
+  reader.onload = () => { pendingImages.push(reader.result); };
   reader.readAsDataURL(file);
 }
-</script>
 
+/* ─── ENTER on login ─── */
+document.getElementById("loginPassword").addEventListener("keydown", e => { if(e.key==="Enter") window.doLogin(); });
+
+/* ─── ERRORS ─── */
+function firebaseError(code) {
+  const map = {
+    "auth/email-already-in-use":   "Cet email est déjà utilisé.",
+    "auth/invalid-email":          "Email invalide.",
+    "auth/weak-password":          "Mot de passe trop faible.",
+    "auth/user-not-found":         "Aucun compte avec cet email.",
+    "auth/wrong-password":         "Mot de passe incorrect.",
+    "auth/invalid-credential":     "Email ou mot de passe incorrect.",
+    "auth/too-many-requests":      "Trop de tentatives. Réessaie plus tard.",
+    "auth/network-request-failed": "Erreur réseau. Vérifie ta connexion.",
+  };
+  return map[code] || "Erreur : " + code;
+}
+</script>
 </body>
 </html>
