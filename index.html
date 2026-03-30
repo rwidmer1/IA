@@ -18,73 +18,53 @@ h4 { text-align: center; color: #ff8c42; }
 
 /* ─── AUTH ─── */
 .auth-box {
-  background: #1a1d24;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 0 25px rgba(255,140,66,0.15);
-  max-width: 420px;
-  margin: 0 auto;
+  background: #1a1d24; border-radius: 12px; padding: 24px;
+  box-shadow: 0 0 25px rgba(255,140,66,0.15); max-width: 420px; margin: 0 auto;
 }
-.auth-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 20px;
-}
+.auth-tabs { display: flex; gap: 6px; margin-bottom: 20px; }
 .auth-tab {
-  flex: 1;
-  padding: 9px;
-  border-radius: 8px;
-  border: none;
-  background: #2a2f3a;
-  color: #aaa;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 0.9rem;
-  cursor: pointer;
+  flex: 1; padding: 9px; border-radius: 8px; border: none;
+  background: #2a2f3a; color: #aaa;
+  font-family: "Segoe UI", sans-serif; font-size: 0.9rem; cursor: pointer;
 }
-.auth-tab.active {
-  background: linear-gradient(135deg, #ff8c42, #ff5e00);
-  color: white;
-}
+.auth-tab.active { background: linear-gradient(135deg, #ff8c42, #ff5e00); color: white; }
 .form-group { margin-bottom: 12px; }
-.form-group label {
-  display: block;
-  font-size: 0.8rem;
-  color: #aaa;
-  margin-bottom: 5px;
-}
+.form-group label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; }
 .form-row { display: flex; gap: 10px; }
 .form-row .form-group { flex: 1; }
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #2a2f3a;
-  color: #eee;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 0.9rem;
-  outline: none;
-  box-sizing: border-box;
+.form-group input, .form-group select {
+  width: 100%; padding: 10px; border-radius: 8px; border: none;
+  background: #2a2f3a; color: #eee;
+  font-family: "Segoe UI", sans-serif; font-size: 0.9rem;
+  outline: none; box-sizing: border-box;
 }
 .form-group select option { background: #2a2f3a; }
 .auth-error { color: #e05555; font-size: 0.8rem; margin-top: 8px; min-height: 18px; text-align: center; }
 .auth-success { color: #5dde6a; font-size: 0.8rem; margin-top: 8px; min-height: 18px; text-align: center; }
 
-/* ─── BAN SCREEN ─── */
-#bannedSection {
-  display: none;
-  text-align: center;
-  padding: 60px 20px;
+/* ─── AVATAR UPLOAD ─── */
+.avatar-upload-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 18px; gap: 8px;
 }
+.avatar-preview {
+  width: 84px; height: 84px; border-radius: 50%;
+  background: #2a2f3a; border: 2px dashed #ff8c42;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; transition: border-color 0.2s, opacity 0.2s;
+}
+.avatar-preview:hover { border-color: #ff5e00; opacity: 0.85; }
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 50%; }
+.avatar-placeholder { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #ff8c42; font-size: 0.68rem; text-align: center; }
+.avatar-placeholder span { font-size: 1.6rem; }
+.avatar-upload-hint { font-size: 0.7rem; color: #666; }
+
+/* ─── BAN SCREEN ─── */
+#bannedSection { display: none; text-align: center; padding: 60px 20px; }
 .ban-icon { font-size: 3rem; margin-bottom: 16px; }
 .ban-box {
-  background: #1a1d24;
-  border: 1px solid #e05555;
-  border-radius: 12px;
-  padding: 32px 24px;
-  max-width: 380px;
-  margin: 0 auto;
+  background: #1a1d24; border: 1px solid #e05555; border-radius: 12px;
+  padding: 32px 24px; max-width: 380px; margin: 0 auto;
   box-shadow: 0 0 30px rgba(224,85,85,0.2);
 }
 .ban-box h3 { color: #e05555; font-size: 1.2rem; margin-bottom: 10px; }
@@ -92,62 +72,38 @@ h4 { text-align: center; color: #ff8c42; }
 
 /* ─── CHAT ─── */
 #chatSection { display: none; }
-#appHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
+#appHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 #appHeader h1 { margin: 0; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+#headerAvatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #2a2f3a; border: 2px solid #ff8c42;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; font-weight: 700; color: #ff8c42;
+  overflow: hidden; flex-shrink: 0;
+}
+#headerAvatar img { width: 100%; height: 100%; object-fit: cover; }
+#headerUsername { color: #ff8c42; font-size: 0.9rem; }
 .logout-btn {
-  background: #2a2f3a;
-  border: none;
-  color: #aaa;
-  padding: 7px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+  background: #2a2f3a; border: none; color: #aaa;
+  padding: 7px 14px; border-radius: 8px; cursor: pointer;
   font-family: "Segoe UI", sans-serif;
 }
 .logout-btn:hover { color: #e05555; }
 #chat {
-  background: #1a1d24;
-  border-radius: 12px;
-  padding: 15px;
-  height: 420px;
-  overflow-y: auto;
+  background: #1a1d24; border-radius: 12px; padding: 15px;
+  height: 420px; overflow-y: auto;
   box-shadow: 0 0 25px rgba(255,140,66,0.15);
 }
-.msg {
-  margin: 10px 0;
-  max-width: 75%;
-  padding: 10px 14px;
-  border-radius: 12px;
-}
-.user {
-  background: linear-gradient(135deg, #ff8c42, #ff5e00);
-  color: white;
-  margin-left: auto;
-}
+.msg { margin: 10px 0; max-width: 75%; padding: 10px 14px; border-radius: 12px; }
+.user { background: linear-gradient(135deg, #ff8c42, #ff5e00); color: white; margin-left: auto; }
 .bot { background: #2a2f3a; }
-img.chat-img {
-  max-width: 220px;
-  border-radius: 10px;
-}
-.typing {
-  font-style: italic;
-  color: #ccc;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+img.chat-img { max-width: 220px; border-radius: 10px; }
+.typing { font-style: italic; color: #ccc; display: flex; align-items: center; gap: 8px; }
 .typing::before {
-  content: "";
-  display: inline-block;
-  width: 10px; height: 10px;
-  background: #ff8c42;
-  border-radius: 50%;
-  animation: pulse 1.2s ease-in-out infinite;
-  flex-shrink: 0;
+  content: ""; display: inline-block; width: 10px; height: 10px;
+  background: #ff8c42; border-radius: 50%;
+  animation: pulse 1.2s ease-in-out infinite; flex-shrink: 0;
 }
 @keyframes pulse {
   0%   { transform: scale(1);   opacity: 1; }
@@ -155,15 +111,9 @@ img.chat-img {
   100% { transform: scale(1);   opacity: 1; }
 }
 #dropzone {
-  border: 2px dashed #ff8c42;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  margin: 10px 0;
-  cursor: pointer;
-  background: rgba(255,140,66,0.05);
-  color: #aaa;
-  font-size: 0.85rem;
+  border: 2px dashed #ff8c42; border-radius: 12px; padding: 20px;
+  text-align: center; margin: 10px 0; cursor: pointer;
+  background: rgba(255,140,66,0.05); color: #aaa; font-size: 0.85rem;
 }
 #dropzone:hover { background: rgba(255,140,66,0.1); color: #ff8c42; }
 
@@ -175,60 +125,32 @@ img.chat-img {
 .verify-box p { color: #aaa; font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px; }
 .verify-box .email-highlight { color: #ff8c42; font-weight: 600; }
 
-/* ─── SHARED BUTTONS ─── */
+/* ─── BUTTONS ─── */
 button.btn {
-  width: 100%;
-  padding: 11px;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(135deg, #ff8c42, #ff5e00);
-  color: white;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 0.95rem;
-  cursor: pointer;
-  margin-top: 6px;
+  width: 100%; padding: 11px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #ff8c42, #ff5e00); color: white;
+  font-family: "Segoe UI", sans-serif; font-size: 0.95rem; cursor: pointer; margin-top: 6px;
 }
 button.btn:hover { opacity: 0.85; }
 button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 button.btn-ghost {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #2a2f3a;
-  background: transparent;
-  color: #aaa;
-  font-family: "Segoe UI", sans-serif;
-  font-size: 0.85rem;
-  cursor: pointer;
-  margin-top: 6px;
+  width: 100%; padding: 10px; border-radius: 8px;
+  border: 1px solid #2a2f3a; background: transparent; color: #aaa;
+  font-family: "Segoe UI", sans-serif; font-size: 0.85rem; cursor: pointer; margin-top: 6px;
 }
 button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
 
-/* ─── FORM BOTTOM ─── */
-#inputRow {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
+/* ─── INPUT ─── */
+#inputRow { display: flex; gap: 10px; margin-top: 10px; }
 #inputRow input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #1a1d24;
-  color: white;
-  font-family: "Segoe UI", sans-serif;
+  flex: 1; padding: 10px; border-radius: 8px; border: none;
+  background: #1a1d24; color: white; font-family: "Segoe UI", sans-serif;
 }
 #inputRow button {
   background: linear-gradient(135deg, #ff8c42, #ff5e00);
-  border: none;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+  border: none; color: white; padding: 10px 14px; border-radius: 8px; cursor: pointer;
 }
 #inputRow button:hover { opacity: 0.85; }
-
 .hidden { display: none !important; }
 </style>
 </head>
@@ -261,6 +183,20 @@ button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
 
     <!-- Register -->
     <div id="registerForm" class="hidden">
+
+      <!-- Avatar -->
+      <div class="avatar-upload-wrap">
+        <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">
+          <img id="avatarPreviewImg" alt="">
+          <div class="avatar-placeholder" id="avatarPlaceholder">
+            <span>📷</span>
+            <div>Choisir une photo</div>
+          </div>
+        </div>
+        <span class="avatar-upload-hint">Optionnel · compressée automatiquement</span>
+        <input type="file" id="avatarInput" accept="image/*" hidden onchange="handleAvatarUpload(this)">
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label>Prénom</label>
@@ -341,8 +277,9 @@ button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
 <div id="chatSection">
   <div id="appHeader">
     <h1 style="margin:0">Assistant IA</h1>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span id="headerUsername" style="color:#ff8c42;font-size:0.9rem"></span>
+    <div class="header-right">
+      <div id="headerAvatar"></div>
+      <span id="headerUsername"></span>
       <button class="logout-btn" onclick="doLogout()">Déconnexion</button>
     </div>
   </div>
@@ -387,13 +324,39 @@ const store = getFirestore(app);
 let currentUser   = null;
 let pendingImages = [];
 let banUnsub      = null;
+let avatarBase64  = null;
+
+/* ─── AVATAR COMPRESSION ─── */
+window.handleAvatarUpload = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxSize = 200;
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+      else        { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      avatarBase64 = canvas.toDataURL("image/jpeg", 0.82);
+      // Show preview
+      const previewImg = document.getElementById("avatarPreviewImg");
+      previewImg.src = avatarBase64;
+      previewImg.style.display = "block";
+      document.getElementById("avatarPlaceholder").style.display = "none";
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
 
 /* ─── SECTIONS ─── */
 function hideAll() {
-  document.getElementById("authSection").style.display    = "none";
-  document.getElementById("verifySection").style.display  = "none";
-  document.getElementById("bannedSection").style.display  = "none";
-  document.getElementById("chatSection").style.display    = "none";
+  ["authSection","verifySection","bannedSection","chatSection"]
+    .forEach(id => document.getElementById(id).style.display = "none");
 }
 function showAuth()   { hideAll(); document.getElementById("authSection").style.display   = "block"; }
 function showVerify(email) {
@@ -401,24 +364,28 @@ function showVerify(email) {
   document.getElementById("verifySection").style.display = "block";
   document.getElementById("verifyEmailDisplay").textContent = email;
 }
-function showBanned() {
-  hideAll();
-  document.getElementById("bannedSection").style.display = "block";
-}
+function showBanned() { hideAll(); document.getElementById("bannedSection").style.display = "block"; }
+
 function showChat(user, profile) {
   hideAll();
   document.getElementById("chatSection").style.display = "block";
   const pseudo = profile.username || user.email.split("@")[0];
   document.getElementById("headerUsername").textContent = "@" + pseudo;
+
+  // Header avatar
+  const avatarEl = document.getElementById("headerAvatar");
+  if (profile.photoURL) {
+    avatarEl.innerHTML = `<img src="${profile.photoURL}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+  } else {
+    avatarEl.textContent = (profile.firstName?.[0] || pseudo[0] || "?").toUpperCase();
+  }
+
   const msgsRef = ref(db, `conversations/${user.uid}/messages`);
   onValue(msgsRef, snap => renderChat(snap.val() || {}));
 
-  // Listen in real-time for ban changes while user is logged in
   if (banUnsub) banUnsub();
   banUnsub = onSnapshot(doc(store, "users", user.uid), snap => {
-    if (snap.exists() && snap.data().banned === true) {
-      showBanned();
-    }
+    if (snap.exists() && snap.data().banned === true) showBanned();
   });
 }
 
@@ -430,12 +397,9 @@ onAuthStateChanged(auth, async user => {
     currentUser = user;
     const snap = await getDoc(doc(store, "users", user.uid));
     const profile = snap.exists() ? snap.data() : {};
-    // Check ban before showing chat
     if (profile.banned === true) { showBanned(); return; }
     showChat(user, profile);
-  } else {
-    showAuth();
-  }
+  } else { showAuth(); }
 });
 
 /* ─── TAB SWITCH ─── */
@@ -465,12 +429,15 @@ window.doRegister = async function() {
     return err.textContent = "Tous les champs sont obligatoires.";
   if (password.length < 8) return err.textContent = "Mot de passe trop court (8 car. min).";
   if (username.length < 3) return err.textContent = "Pseudo trop court (3 car. min).";
+  if (avatarBase64 && avatarBase64.length > 750000)
+    return err.textContent = "Photo trop lourde, choisis une image plus petite.";
+
   btn.disabled = true; btn.textContent = "Création…";
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    // banned: false by default
-    await setDoc(doc(store, "users", cred.user.uid), { firstName, lastName, username, email, dob, country, banned: false, createdAt: Date.now() });
-    await setDoc(doc(store, "userList", cred.user.uid), { firstName, lastName, username, email, country, banned: false, uid: cred.user.uid });
+    const base = { firstName, lastName, username, email, dob, country, banned: false, createdAt: Date.now(), photoURL: avatarBase64 || null };
+    await setDoc(doc(store, "users", cred.user.uid), base);
+    await setDoc(doc(store, "userList", cred.user.uid), { firstName, lastName, username, email, country, banned: false, uid: cred.user.uid, photoURL: avatarBase64 || null });
     await sendEmailVerification(cred.user);
     showVerify(email);
   } catch(e) {
@@ -492,7 +459,6 @@ window.doLogin = async function() {
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     if (!cred.user.emailVerified) { showVerify(email); return; }
-    // Check ban immediately on login
     const snap = await getDoc(doc(store, "users", cred.user.uid));
     if (snap.exists() && snap.data().banned === true) {
       await signOut(auth);
@@ -516,9 +482,7 @@ window.checkVerified = async function() {
     if (auth.currentUser.emailVerified) {
       suc.textContent = "✓ Email vérifié !";
       setTimeout(() => location.reload(), 800);
-    } else {
-      err.textContent = "Email pas encore vérifié.";
-    }
+    } else { err.textContent = "Email pas encore vérifié."; }
   } catch(e) { err.textContent = "Erreur. Réessaie."; }
 };
 window.resendVerification = async function() {
@@ -536,14 +500,12 @@ window.backToLogin = async function() { await signOut(auth); showAuth(); };
 window.doLogout = async function() {
   if (banUnsub) { banUnsub(); banUnsub = null; }
   await signOut(auth);
-  currentUser = null;
-  pendingImages = [];
+  currentUser = null; pendingImages = [];
   document.getElementById("chat").innerHTML = "";
 };
 window.doBannedLogout = async function() {
   if (banUnsub) { banUnsub(); banUnsub = null; }
-  await signOut(auth);
-  showAuth();
+  await signOut(auth); showAuth();
 };
 
 /* ─── CHAT RENDER ─── */
@@ -555,12 +517,10 @@ function renderChat(data) {
     const div = document.createElement("div");
     div.className = "msg " + (m.from === "user" ? "user" : "bot");
     if (m.typing) {
-      div.classList.add("typing");
-      div.textContent = "L'ia est en train de répondre...";
+      div.classList.add("typing"); div.textContent = "L'ia est en train de répondre...";
     } else if (m.image) {
       const img = document.createElement("img");
-      img.src = m.image; img.className = "chat-img";
-      div.appendChild(img);
+      img.src = m.image; img.className = "chat-img"; div.appendChild(img);
     } else {
       div.textContent = m.text || "";
     }
@@ -580,7 +540,6 @@ window.sendMessage = async function() {
   const imgs = [...pendingImages]; pendingImages = [];
   if (text) await push(msgsRef, { from: "user", text, ts: Date.now() });
   for (const img of imgs) await push(msgsRef, { from: "user", image: img, ts: Date.now() });
-  // Signal admin that there's an unread message
   try { await updateDoc(doc(store, "userList", currentUser.uid), { lastUserMsgTs: Date.now() }); } catch(e) {}
 };
 
