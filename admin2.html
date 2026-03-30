@@ -30,7 +30,7 @@
     display: flex; flex-direction: column;
   }
 
-  /* ─── LOGIN OVERLAY ─── */
+  /* ─── LOGIN ─── */
   #loginOverlay {
     position: fixed; inset: 0; background: var(--bg);
     display: flex; align-items: center; justify-content: center;
@@ -61,22 +61,16 @@
   #loginError { color: var(--danger); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; margin-top: 10px; min-height: 18px; }
 
   /* ─── LAYOUT ─── */
-  #shell {
-    display: flex; flex: 1; overflow: hidden;
-    height: 100vh;
-  }
+  #shell { display: flex; flex: 1; overflow: hidden; height: 100vh; }
 
   /* ─── SIDEBAR ─── */
   #sidebar {
     width: 260px; flex-shrink: 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    overflow: hidden;
+    background: var(--surface); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
   }
   .sidebar-header {
-    padding: 16px 16px 12px;
-    border-bottom: 1px solid var(--border);
+    padding: 16px 16px 12px; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 10px;
   }
   .status-dot {
@@ -88,8 +82,7 @@
   .sidebar-header h2 { font-size: 0.9rem; font-weight: 800; color: var(--accent); }
 
   #userSearch {
-    margin: 10px 12px;
-    padding: 8px 12px; background: var(--panel);
+    margin: 10px 12px; padding: 8px 12px; background: var(--panel);
     border: 1px solid var(--border); border-radius: 8px;
     color: var(--text); font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem; outline: none; transition: border-color 0.2s;
@@ -98,11 +91,9 @@
   #userSearch::placeholder { color: var(--muted); }
 
   #userList {
-    flex: 1; overflow-y: auto;
-    padding: 4px 8px 8px;
+    flex: 1; overflow-y: auto; padding: 4px 8px 8px;
     scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
-
   .user-item {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 10px; border-radius: 10px;
@@ -112,14 +103,26 @@
   .user-item:hover { background: var(--panel); }
   .user-item.active { background: var(--glow); border: 1px solid rgba(255,107,53,0.3); }
   .user-item.banned { opacity: 0.5; }
-  .user-item .u-avatar {
+
+  /* ─── AVATAR (sidebar) ─── */
+  .u-avatar-wrap { position: relative; flex-shrink: 0; }
+  .u-avatar {
     width: 36px; height: 36px; border-radius: 10px;
     background: var(--glow); border: 1px solid var(--accent);
     display: flex; align-items: center; justify-content: center;
     font-size: 0.85rem; font-weight: 700; color: var(--accent);
-    flex-shrink: 0;
+    overflow: hidden;
   }
+  .u-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
   .user-item.banned .u-avatar { border-color: var(--danger); color: var(--danger); background: rgba(224,85,85,0.1); }
+  .unread-dot {
+    position: absolute; top: -3px; right: -3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--user-acc); border: 2px solid var(--surface);
+    box-shadow: 0 0 6px var(--user-acc); animation: pulse 2s infinite; display: none;
+  }
+  .user-item.has-unread .unread-dot { display: block; }
+
   .user-item .u-info { flex: 1; min-width: 0; }
   .user-item .u-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-item .u-email { font-size: 0.68rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -129,29 +132,11 @@
     border: 1px solid var(--danger); border-radius: 4px;
     padding: 1px 5px; flex-shrink: 0;
   }
-  /* ─── UNREAD DOT ─── */
-  .u-avatar-wrap { position: relative; flex-shrink: 0; }
-  .unread-dot {
-    position: absolute; top: -3px; right: -3px;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--user-acc);
-    border: 2px solid var(--surface);
-    box-shadow: 0 0 6px var(--user-acc);
-    animation: pulse 2s infinite;
-    display: none;
-  }
-  .user-item.has-unread .unread-dot { display: block; }
-
   .no-users {
     text-align: center; color: var(--muted);
-    font-size: 0.78rem; font-family: 'JetBrains Mono', monospace;
-    padding: 30px 16px;
+    font-size: 0.78rem; font-family: 'JetBrains Mono', monospace; padding: 30px 16px;
   }
-
-  .sidebar-footer {
-    padding: 12px; border-top: 1px solid var(--border);
-    display: flex; gap: 6px;
-  }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 6px; }
   .sf-btn {
     flex: 1; padding: 8px; border-radius: 8px;
     border: 1px solid var(--border); background: var(--panel);
@@ -162,46 +147,39 @@
   .sf-btn:hover { color: var(--text); border-color: var(--accent); background: var(--glow); }
   .sf-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
 
-  /* ─── MAIN CHAT AREA ─── */
-  #main {
-    flex: 1; display: flex; flex-direction: column;
-    overflow: hidden; min-width: 0;
-  }
-
+  /* ─── MAIN ─── */
+  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
   #emptyState {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    color: var(--muted);
-    font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-    gap: 12px;
+    color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; gap: 12px;
   }
   #emptyState .empty-icon { font-size: 2.5rem; }
   #emptyState p { text-align: center; line-height: 1.6; }
-
   #chatArea { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
   /* ─── CHAT HEADER ─── */
   #chatHeader {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px 12px;
-    border-bottom: 1px solid var(--border);
+    padding: 14px 20px 12px; border-bottom: 1px solid var(--border);
     background: var(--surface);
   }
   .chat-user-info { display: flex; align-items: center; gap: 12px; }
-  .chat-user-info .cu-avatar {
-    width: 36px; height: 36px; border-radius: 10px;
+  .cu-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
     background: var(--glow); border: 1px solid var(--accent);
     display: flex; align-items: center; justify-content: center;
     font-size: 0.9rem; font-weight: 700; color: var(--accent);
+    overflow: hidden; flex-shrink: 0;
   }
+  .cu-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .cu-name { font-size: 0.95rem; font-weight: 700; }
   .cu-meta { font-size: 0.7rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
   .header-actions { display: flex; gap: 6px; }
   .icon-btn {
     background: var(--panel); border: 1px solid var(--border);
     border-radius: 8px; padding: 6px 10px; cursor: pointer;
-    color: var(--muted); font-size: 0.7rem;
-    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted); font-size: 0.7rem; font-family: 'JetBrains Mono', monospace;
     display: flex; align-items: center; gap: 5px; transition: all 0.2s;
   }
   .icon-btn:hover { color: var(--text); border-color: var(--accent); background: var(--glow); }
@@ -219,56 +197,46 @@
   .model-chip {
     flex-shrink: 0; padding: 4px 11px; border-radius: 99px;
     border: 1px solid var(--border); background: var(--panel);
-    color: var(--muted); font-size: 0.68rem;
-    font-family: 'JetBrains Mono', monospace; cursor: pointer;
-    transition: all 0.2s; white-space: nowrap;
+    color: var(--muted); font-size: 0.68rem; font-family: 'JetBrains Mono', monospace;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
   }
   .model-chip:hover { border-color: var(--accent2); color: var(--text); }
   .model-chip.active { background: var(--glow); border-color: var(--accent); color: var(--accent); font-weight: 600; }
 
   /* ─── MESSAGES ─── */
   #chat {
-    flex: 1; overflow-y: auto;
-    padding: 16px 18px 10px;
+    flex: 1; overflow-y: auto; padding: 16px 18px 10px;
     display: flex; flex-direction: column; gap: 4px;
     scroll-behavior: smooth;
     scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
-  .msg-row {
-    display: flex; align-items: flex-end; gap: 8px;
-    animation: fadeUp 0.22s ease;
-  }
+  .msg-row { display: flex; align-items: flex-end; gap: 8px; animation: fadeUp 0.22s ease; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
   .msg-row.user { flex-direction: row-reverse; }
   .avatar {
-    width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.68rem; font-weight: 700;
+    font-size: 0.68rem; font-weight: 700; overflow: hidden;
   }
-  .avatar.bot { background: var(--glow); border: 1px solid var(--accent); color: var(--accent); }
+  .avatar.bot { background: var(--glow); border: 1px solid var(--accent); color: var(--accent); border-radius: 7px; }
   .avatar.user { background: rgba(93,222,106,0.15); border: 1px solid var(--user-acc); color: var(--user-acc); }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .bubble-wrap { display: flex; flex-direction: column; max-width: 70%; }
   .msg-row.user .bubble-wrap { align-items: flex-end; }
-  .bubble {
-    padding: 9px 13px; border-radius: 13px;
-    font-size: 0.87rem; line-height: 1.55; word-break: break-word;
-  }
+  .bubble { padding: 9px 13px; border-radius: 13px; font-size: 0.87rem; line-height: 1.55; word-break: break-word; }
   .msg-row.bot .bubble { background: var(--bot-bg); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
   .msg-row.user .bubble { background: var(--user-bg); border: 1px solid rgba(93,222,106,0.25); border-bottom-right-radius: 4px; color: #d4f7d6; }
   .bubble img { max-width: 180px; border-radius: 8px; display: block; margin-top: 2px; }
   .meta {
-    font-size: 0.66rem; color: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
-    margin-top: 3px; padding: 0 3px;
-    display: flex; align-items: center; gap: 6px;
+    font-size: 0.66rem; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+    margin-top: 3px; padding: 0 3px; display: flex; align-items: center; gap: 6px;
   }
   .msg-row.user .meta { flex-direction: row-reverse; }
   .copy-btn, .del-btn {
     cursor: pointer; opacity: 0; transition: opacity 0.2s;
     font-size: 0.66rem; color: var(--muted); background: none; border: none; padding: 0;
   }
-  .bubble-wrap:hover .copy-btn,
-  .bubble-wrap:hover .del-btn { opacity: 1; }
+  .bubble-wrap:hover .copy-btn, .bubble-wrap:hover .del-btn { opacity: 1; }
   .copy-btn:hover { color: var(--accent); }
   .del-btn:hover  { color: var(--danger); }
   .typing-dots span {
@@ -294,22 +262,18 @@
   #dropzone {
     margin: 0 18px 8px; border: 1.5px dashed var(--border); border-radius: 10px;
     padding: 8px 14px; text-align: center; cursor: pointer;
-    color: var(--muted); font-size: 0.76rem;
-    font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
+    color: var(--muted); font-size: 0.76rem; font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
   }
   #dropzone:hover, #dropzone.drag { border-color: var(--accent); color: var(--accent); background: var(--glow); }
 
   /* ─── INPUT BAR ─── */
   #inputBar {
     display: flex; gap: 7px; align-items: flex-end;
-    padding: 10px 18px 14px;
-    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 10px 18px 14px; background: var(--surface); border-top: 1px solid var(--border);
   }
   #reply {
-    flex: 1; padding: 10px 13px;
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: 11px; color: var(--text);
-    font-family: 'Syne', sans-serif; font-size: 0.88rem;
+    flex: 1; padding: 10px 13px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 11px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 0.88rem;
     outline: none; resize: none; min-height: 42px; max-height: 110px;
     line-height: 1.4; transition: border-color 0.2s;
   }
@@ -318,8 +282,7 @@
   .action-btn {
     flex-shrink: 0; width: 42px; height: 42px; border-radius: 11px;
     border: 1px solid var(--border); background: var(--panel); color: var(--muted);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
   }
   .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--glow); }
   .action-btn.primary { background: linear-gradient(135deg, var(--accent), #e04d00); border-color: transparent; color: white; }
@@ -346,24 +309,28 @@
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ─── USER PROFILE PANEL ─── */
+  /* ─── PROFILE PANEL ─── */
   #profilePanel {
     position: fixed; top: 0; right: 0; bottom: 0;
-    width: 280px; background: var(--surface);
-    border-left: 1px solid var(--border);
+    width: 280px; background: var(--surface); border-left: 1px solid var(--border);
     padding: 24px 20px; z-index: 50;
-    transform: translateX(100%); transition: transform 0.3s;
-    overflow-y: auto;
+    transform: translateX(100%); transition: transform 0.3s; overflow-y: auto;
   }
   #profilePanel.open { transform: translateX(0); }
   #profilePanel h3 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 20px; }
+  .profile-avatar-big {
+    width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 18px;
+    background: var(--glow); border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; font-weight: 700; color: var(--accent); overflow: hidden;
+  }
+  .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .profile-row { margin-bottom: 14px; }
   .profile-row label { font-size: 0.68rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
   .profile-row p { font-size: 0.85rem; margin-top: 3px; }
   .profile-close {
     position: absolute; top: 16px; right: 16px;
-    background: none; border: none; color: var(--muted);
-    cursor: pointer; font-size: 1.2rem;
+    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem;
   }
   .profile-close:hover { color: var(--danger); }
 
@@ -376,8 +343,7 @@
   #exportModal.open { display: flex; }
   .modal-box {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 26px; width: 320px;
-    box-shadow: 0 0 40px var(--glow);
+    border-radius: 16px; padding: 26px; width: 320px; box-shadow: 0 0 40px var(--glow);
   }
   .modal-box h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: var(--accent); }
   .modal-box button {
@@ -389,7 +355,6 @@
   }
   .modal-box button:hover { border-color: var(--accent); background: var(--glow); }
   .modal-box .close { color: var(--muted); margin-bottom: 0; }
-
   .hidden { display: none !important; }
 </style>
 </head>
@@ -426,7 +391,7 @@
 <div id="toast"></div>
 
 <div id="shell">
-  <!-- ═══ SIDEBAR ═══ -->
+  <!-- SIDEBAR -->
   <div id="sidebar">
     <div class="sidebar-header">
       <div class="status-dot"></div>
@@ -437,11 +402,11 @@
       <div class="no-users" id="noUsers">Aucun utilisateur inscrit</div>
     </div>
     <div class="sidebar-footer">
-      <button class="sf-btn" onclick="document.getElementById('exportModal').classList.add('open')" title="Exporter">
+      <button class="sf-btn" onclick="document.getElementById('exportModal').classList.add('open')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export
       </button>
-      <button class="sf-btn danger" onclick="clearCurrentChat()" title="Vider ce chat">
+      <button class="sf-btn danger" onclick="clearCurrentChat()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>
         Vider
       </button>
@@ -452,7 +417,7 @@
     </div>
   </div>
 
-  <!-- ═══ MAIN ═══ -->
+  <!-- MAIN -->
   <div id="main">
     <div id="emptyState" style="display:flex">
       <div class="empty-icon">💬</div>
@@ -463,27 +428,26 @@
       <!-- Chat Header -->
       <div id="chatHeader">
         <div class="chat-user-info">
-          <div class="cu-avatar" id="cuAvatar">?</div>
+          <div class="cu-avatar" id="cuAvatar"></div>
           <div>
             <div class="cu-name" id="cuName">—</div>
             <div class="cu-meta" id="cuMeta">—</div>
           </div>
         </div>
         <div class="header-actions">
-          <button class="icon-btn" onclick="showProfile()" title="Voir profil">
+          <button class="icon-btn" onclick="showProfile()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             Profil
           </button>
-          <!-- BAN BUTTON -->
-          <button class="icon-btn danger" id="banBtn" onclick="toggleBan()" title="Bannir / Débannir">
+          <button class="icon-btn danger" id="banBtn" onclick="toggleBan()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
             <span id="banBtnLabel">Bannir</span>
           </button>
-          <button class="icon-btn" onclick="document.getElementById('exportModal').classList.add('open')" title="Exporter">
+          <button class="icon-btn" onclick="document.getElementById('exportModal').classList.add('open')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export
           </button>
-          <button class="icon-btn danger" onclick="clearCurrentChat()" title="Vider">
+          <button class="icon-btn danger" onclick="clearCurrentChat()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>
             Vider
           </button>
@@ -501,31 +465,22 @@
         <div class="model-chip" data-model="google/gemini-2.0-flash-001" onclick="selectModel(this)">Gemini 2.0</div>
       </div>
 
-      <!-- Messages -->
       <div id="chat"></div>
-
-      <!-- Ban banner (shown when user is banned) -->
-      <div id="banBanner">
-        🚫 Cet utilisateur est banni. Il ne peut plus se connecter.
-      </div>
-
-      <!-- Image preview + dropzone -->
+      <div id="banBanner">🚫 Cet utilisateur est banni. Il ne peut plus se connecter.</div>
       <div id="imagePreview"></div>
       <div id="dropzone">
         <input type="file" id="fileInput" accept="image/*" multiple hidden>
         📎 Dépose une image ou clique pour joindre
       </div>
-
-      <!-- Input bar -->
       <div id="inputBar">
         <textarea id="reply" placeholder="Répondre à l'utilisateur…" rows="1"></textarea>
-        <button class="action-btn primary" onclick="sendManual()" title="Envoyer">
+        <button class="action-btn primary" onclick="sendManual()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
-        <button class="action-btn" onclick="sendAI()" title="Réponse IA">
+        <button class="action-btn" onclick="sendAI()">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 0 1.5 8.5 10 10-8.5 1.5-10 10-10 10s-1.5-8.5-10-10c8.5-1.5 10-10 10-10z"/></svg>
         </button>
-        <button class="action-btn" onclick="regenerate()" title="Régénérer">
+        <button class="action-btn" onclick="regenerate()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         </button>
       </div>
@@ -564,6 +519,14 @@ let typingRef     = null;
 let typingTimeout = null;
 let allUsers      = [];
 
+/* ─── HELPERS ─── */
+function avatarHTML(u, size = 36, radius = "10px") {
+  if (u.photoURL) {
+    return `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:${radius}">`;
+  }
+  return (u.firstName?.[0] || u.username?.[0] || "?").toUpperCase();
+}
+
 /* ─── LOGIN ─── */
 function checkLogin() { return sessionStorage.getItem("adminAuth") === "1"; }
 window.doLogin = function() {
@@ -598,10 +561,9 @@ function renderUserList(users) {
   list.innerHTML = "";
   if (!users.length) { list.appendChild(noUsers); noUsers.style.display = "block"; return; }
   noUsers.style.display = "none";
-  // Sort: unread first (by lastUserMsgTs desc), then rest by name
+
   const sorted = [...users].sort((a, b) => {
-    const aTs = a.lastUserMsgTs || 0;
-    const bTs = b.lastUserMsgTs || 0;
+    const aTs = a.lastUserMsgTs || 0, bTs = b.lastUserMsgTs || 0;
     if (aTs !== bTs) return bTs - aTs;
     return (a.firstName || "").localeCompare(b.firstName || "");
   });
@@ -612,10 +574,9 @@ function renderUserList(users) {
     const item = document.createElement("div");
     item.className = classes;
     item.dataset.uid = u.uid;
-    const initial = (u.firstName?.[0] || u.username?.[0] || "?").toUpperCase();
     item.innerHTML = `
       <div class="u-avatar-wrap">
-        <div class="u-avatar">${initial}</div>
+        <div class="u-avatar">${avatarHTML(u)}</div>
         <div class="unread-dot"></div>
       </div>
       <div class="u-info">
@@ -644,65 +605,56 @@ function selectUser(u) {
   chatArea.classList.remove("hidden");
   chatArea.style.display = "flex";
 
-  const initial = (u.firstName?.[0] || "?").toUpperCase();
-  document.getElementById("cuAvatar").textContent = initial;
+  // Header avatar (round)
+  const cuAv = document.getElementById("cuAvatar");
+  cuAv.innerHTML = avatarHTML(u, 38, "50%");
   document.getElementById("cuName").textContent = `${u.firstName} ${u.lastName}`;
   document.getElementById("cuMeta").textContent = `@${u.username} · ${u.email}`;
 
   updateBanUI(u.banned);
-
-  document.querySelectorAll(".user-item").forEach(el => {
-    el.classList.toggle("active", el.dataset.uid === u.uid);
-  });
+  document.querySelectorAll(".user-item").forEach(el => el.classList.toggle("active", el.dataset.uid === u.uid));
 
   if (chatUnsub) chatUnsub();
   const msgsRef = ref(db, `conversations/${u.uid}/messages`);
   chatUnsub = onValue(msgsRef, snap => renderChat(snap.val() || {}));
 }
 
-/* ─── BAN / UNBAN ─── */
+/* ─── BAN ─── */
 function updateBanUI(isBanned) {
   const btn = document.getElementById("banBtn");
   const label = document.getElementById("banBtnLabel");
   const banner = document.getElementById("banBanner");
   if (isBanned) {
-    btn.classList.add("ban-active");
-    label.textContent = "Débannir";
-    banner.classList.add("visible");
+    btn.classList.add("ban-active"); label.textContent = "Débannir"; banner.classList.add("visible");
   } else {
-    btn.classList.remove("ban-active");
-    label.textContent = "Bannir";
-    banner.classList.remove("visible");
+    btn.classList.remove("ban-active"); label.textContent = "Bannir"; banner.classList.remove("visible");
   }
 }
-
 window.toggleBan = async function() {
   if (!selectedUser) return toast("Aucun utilisateur sélectionné");
   const isBanned = selectedUser.banned || false;
-  const action = isBanned ? "débannir" : "bannir";
-  if (!confirm(`Voulez-vous ${action} ${selectedUser.firstName} ${selectedUser.lastName} ?`)) return;
-
+  if (!confirm(`Voulez-vous ${isBanned ? "débannir" : "bannir"} ${selectedUser.firstName} ${selectedUser.lastName} ?`)) return;
   try {
-    // Update both userList and users collections
     await updateDoc(doc(store, "userList", selectedUser.uid), { banned: !isBanned });
     await updateDoc(doc(store, "users", selectedUser.uid), { banned: !isBanned });
     selectedUser.banned = !isBanned;
     updateBanUI(selectedUser.banned);
-    // Refresh sidebar
     const idx = allUsers.findIndex(u => u.uid === selectedUser.uid);
     if (idx !== -1) allUsers[idx].banned = selectedUser.banned;
     renderUserList(allUsers);
     toast(selectedUser.banned ? `🚫 ${selectedUser.firstName} banni` : `✓ ${selectedUser.firstName} débanni`);
-  } catch(e) {
-    toast("Erreur lors du ban : " + e.message);
-  }
+  } catch(e) { toast("Erreur : " + e.message); }
 };
 
 /* ─── PROFILE PANEL ─── */
 window.showProfile = function() {
   if (!selectedUser) return;
   const u = selectedUser;
+  const avatarBig = u.photoURL
+    ? `<div class="profile-avatar-big"><img src="${u.photoURL}" alt=""></div>`
+    : `<div class="profile-avatar-big">${(u.firstName?.[0] || "?").toUpperCase()}</div>`;
   document.getElementById("profileContent").innerHTML = `
+    ${avatarBig}
     <div class="profile-row"><label>Prénom</label><p>${u.firstName || "—"}</p></div>
     <div class="profile-row"><label>Nom</label><p>${u.lastName || "—"}</p></div>
     <div class="profile-row"><label>Pseudo</label><p>@${u.username || "—"}</p></div>
@@ -710,16 +662,15 @@ window.showProfile = function() {
     <div class="profile-row"><label>Date de naissance</label><p>${u.dob || "—"}</p></div>
     <div class="profile-row"><label>Pays</label><p>${u.country || "—"}</p></div>
     <div class="profile-row"><label>Statut</label><p style="color:${u.banned ? 'var(--danger)' : 'var(--user-acc)'}">${u.banned ? "🚫 Banni" : "✓ Actif"}</p></div>
-    <div class="profile-row"><label>UID Firebase</label><p style="font-size:0.7rem;color:var(--muted);font-family:'JetBrains Mono',monospace">${u.uid}</p></div>
+    <div class="profile-row"><label>UID</label><p style="font-size:0.7rem;color:var(--muted);font-family:'JetBrains Mono',monospace">${u.uid}</p></div>
   `;
   document.getElementById("profilePanel").classList.add("open");
 };
 
-/* ─── MODEL SELECTOR ─── */
+/* ─── MODEL ─── */
 window.selectModel = function(el) {
   document.querySelectorAll(".model-chip").forEach(c => c.classList.remove("active"));
-  el.classList.add("active");
-  currentModel = el.dataset.model;
+  el.classList.add("active"); currentModel = el.dataset.model;
   toast(`Modèle : ${el.textContent.trim()}`);
 };
 
@@ -744,11 +695,14 @@ function renderChat(data) {
 
     const av = document.createElement("div");
     av.className = `avatar ${isUser ? "user" : "bot"}`;
-    av.textContent = isUser ? (selectedUser?.firstName?.[0] || "U").toUpperCase() : "AI";
+    if (isUser && selectedUser?.photoURL) {
+      av.innerHTML = `<img src="${selectedUser.photoURL}" alt="">`;
+    } else {
+      av.textContent = isUser ? (selectedUser?.firstName?.[0] || "U").toUpperCase() : "AI";
+    }
 
     const wrap = document.createElement("div");
     wrap.className = "bubble-wrap";
-
     const bubble = document.createElement("div");
     bubble.className = "bubble";
 
@@ -808,13 +762,11 @@ replyEl.addEventListener("input", async () => {
   replyEl.style.height = Math.min(replyEl.scrollHeight, 110) + "px";
   if (!selectedUser) return;
   const msgsRef = ref(db, `conversations/${selectedUser.uid}/messages`);
-  if (replyEl.value.trim() && !typingRef) {
+  if (replyEl.value.trim() && !typingRef)
     typingRef = await push(msgsRef, { from: "bot", text: "", typing: true });
-  }
   clearTimeout(typingTimeout);
   if (!replyEl.value.trim()) {
-    if (typingRef) { await remove(typingRef); typingRef = null; }
-    return;
+    if (typingRef) { await remove(typingRef); typingRef = null; } return;
   }
   typingTimeout = setTimeout(async () => {
     if (typingRef) { await remove(typingRef); typingRef = null; }
@@ -951,7 +903,6 @@ async function getMessages() {
   const snap = await get(ref(db, `conversations/${selectedUser.uid}/messages`));
   return snap.val() || {};
 }
-
 window.exportJSON = async function() {
   const data = await getMessages();
   const blob = new Blob([JSON.stringify({ user: selectedUser, messages: data }, null, 2)], { type: "application/json" });
