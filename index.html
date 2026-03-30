@@ -71,6 +71,25 @@ h4 { text-align: center; color: #ff8c42; }
 .auth-error { color: #e05555; font-size: 0.8rem; margin-top: 8px; min-height: 18px; text-align: center; }
 .auth-success { color: #5dde6a; font-size: 0.8rem; margin-top: 8px; min-height: 18px; text-align: center; }
 
+/* ─── BAN SCREEN ─── */
+#bannedSection {
+  display: none;
+  text-align: center;
+  padding: 60px 20px;
+}
+.ban-icon { font-size: 3rem; margin-bottom: 16px; }
+.ban-box {
+  background: #1a1d24;
+  border: 1px solid #e05555;
+  border-radius: 12px;
+  padding: 32px 24px;
+  max-width: 380px;
+  margin: 0 auto;
+  box-shadow: 0 0 30px rgba(224,85,85,0.2);
+}
+.ban-box h3 { color: #e05555; font-size: 1.2rem; margin-bottom: 10px; }
+.ban-box p { color: #aaa; font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px; }
+
 /* ─── CHAT ─── */
 #chatSection { display: none; }
 #appHeader {
@@ -305,6 +324,19 @@ button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
   </div>
 </div>
 
+<!-- ══ BANNED ══ -->
+<div id="bannedSection">
+  <div class="ban-box">
+    <div class="ban-icon">🚫</div>
+    <h3>Compte suspendu</h3>
+    <p>Ton compte a été suspendu par un administrateur.<br>
+       Tu ne peux plus accéder à l'assistant IA.<br><br>
+       Si tu penses qu'il s'agit d'une erreur, contacte le support.
+    </p>
+    <button class="btn-ghost" onclick="doBannedLogout()">Se déconnecter</button>
+  </div>
+</div>
+
 <!-- ══ CHAT ══ -->
 <div id="chatSection">
   <div id="appHeader">
@@ -336,7 +368,7 @@ import {
   signInWithEmailAndPassword, sendEmailVerification,
   onAuthStateChanged, signOut, reload
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc }      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyA_B2JH5kcukD4tUFjWGiGYFheVyAzCxfk",
@@ -352,42 +384,55 @@ const app   = initializeApp(firebaseConfig);
 const auth  = getAuth(app);
 const db    = getDatabase(app);
 const store = getFirestore(app);
-let currentUser = null;
+let currentUser   = null;
 let pendingImages = [];
+let banUnsub      = null;
 
 /* ─── SECTIONS ─── */
-function showAuth()   {
-  document.getElementById("authSection").style.display   = "block";
-  document.getElementById("verifySection").style.display = "none";
-  document.getElementById("chatSection").style.display   = "none";
+function hideAll() {
+  document.getElementById("authSection").style.display    = "none";
+  document.getElementById("verifySection").style.display  = "none";
+  document.getElementById("bannedSection").style.display  = "none";
+  document.getElementById("chatSection").style.display    = "none";
 }
+function showAuth()   { hideAll(); document.getElementById("authSection").style.display   = "block"; }
 function showVerify(email) {
-  document.getElementById("authSection").style.display   = "none";
+  hideAll();
   document.getElementById("verifySection").style.display = "block";
-  document.getElementById("chatSection").style.display   = "none";
   document.getElementById("verifyEmailDisplay").textContent = email;
 }
+function showBanned() {
+  hideAll();
+  document.getElementById("bannedSection").style.display = "block";
+}
 function showChat(user, profile) {
-  document.getElementById("authSection").style.display   = "none";
-  document.getElementById("verifySection").style.display = "none";
-  document.getElementById("chatSection").style.display   = "block";
+  hideAll();
+  document.getElementById("chatSection").style.display = "block";
   const pseudo = profile.username || user.email.split("@")[0];
   document.getElementById("headerUsername").textContent = "@" + pseudo;
   const msgsRef = ref(db, `conversations/${user.uid}/messages`);
   onValue(msgsRef, snap => renderChat(snap.val() || {}));
+
+  // Listen in real-time for ban changes while user is logged in
+  if (banUnsub) banUnsub();
+  banUnsub = onSnapshot(doc(store, "users", user.uid), snap => {
+    if (snap.exists() && snap.data().banned === true) {
+      showBanned();
+    }
+  });
 }
 
 /* ─── AUTH STATE ─── */
 onAuthStateChanged(auth, async user => {
   if (user) {
     await reload(user);
-    if (user.emailVerified) {
-      currentUser = user;
-      const snap = await getDoc(doc(store, "users", user.uid));
-      showChat(user, snap.exists() ? snap.data() : {});
-    } else {
-      showVerify(user.email);
-    }
+    if (!user.emailVerified) { showVerify(user.email); return; }
+    currentUser = user;
+    const snap = await getDoc(doc(store, "users", user.uid));
+    const profile = snap.exists() ? snap.data() : {};
+    // Check ban before showing chat
+    if (profile.banned === true) { showBanned(); return; }
+    showChat(user, profile);
   } else {
     showAuth();
   }
@@ -423,8 +468,9 @@ window.doRegister = async function() {
   btn.disabled = true; btn.textContent = "Création…";
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(store, "users", cred.user.uid), { firstName, lastName, username, email, dob, country, createdAt: Date.now() });
-    await setDoc(doc(store, "userList", cred.user.uid), { firstName, lastName, username, email, country, uid: cred.user.uid });
+    // banned: false by default
+    await setDoc(doc(store, "users", cred.user.uid), { firstName, lastName, username, email, dob, country, banned: false, createdAt: Date.now() });
+    await setDoc(doc(store, "userList", cred.user.uid), { firstName, lastName, username, email, country, banned: false, uid: cred.user.uid });
     await sendEmailVerification(cred.user);
     showVerify(email);
   } catch(e) {
@@ -445,7 +491,14 @@ window.doLogin = async function() {
   btn.disabled = true; btn.textContent = "Connexion…";
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
-    if (!cred.user.emailVerified) showVerify(email);
+    if (!cred.user.emailVerified) { showVerify(email); return; }
+    // Check ban immediately on login
+    const snap = await getDoc(doc(store, "users", cred.user.uid));
+    if (snap.exists() && snap.data().banned === true) {
+      await signOut(auth);
+      err.textContent = "Ton compte a été suspendu. Contacte le support.";
+      return;
+    }
   } catch(e) {
     err.textContent = firebaseError(e.code);
   } finally {
@@ -477,16 +530,20 @@ window.resendVerification = async function() {
     suc.textContent = "✓ Email renvoyé !";
   } catch(e) { err.textContent = "Attends quelques minutes avant de réessayer."; }
 };
-window.backToLogin = async function() {
-  await signOut(auth); showAuth();
-};
+window.backToLogin = async function() { await signOut(auth); showAuth(); };
 
 /* ─── LOGOUT ─── */
 window.doLogout = async function() {
+  if (banUnsub) { banUnsub(); banUnsub = null; }
   await signOut(auth);
   currentUser = null;
   pendingImages = [];
   document.getElementById("chat").innerHTML = "";
+};
+window.doBannedLogout = async function() {
+  if (banUnsub) { banUnsub(); banUnsub = null; }
+  await signOut(auth);
+  showAuth();
 };
 
 /* ─── CHAT RENDER ─── */
@@ -523,6 +580,8 @@ window.sendMessage = async function() {
   const imgs = [...pendingImages]; pendingImages = [];
   if (text) await push(msgsRef, { from: "user", text, ts: Date.now() });
   for (const img of imgs) await push(msgsRef, { from: "user", image: img, ts: Date.now() });
+  // Signal admin that there's an unread message
+  try { await updateDoc(doc(store, "userList", currentUser.uid), { lastUserMsgTs: Date.now() }); } catch(e) {}
 };
 
 /* ─── DROPZONE ─── */
@@ -540,10 +599,8 @@ function handleFile(file) {
   reader.readAsDataURL(file);
 }
 
-/* ─── ENTER on login ─── */
 document.getElementById("loginPassword").addEventListener("keydown", e => { if(e.key==="Enter") window.doLogin(); });
 
-/* ─── ERRORS ─── */
 function firebaseError(code) {
   const map = {
     "auth/email-already-in-use":   "Cet email est déjà utilisé.",
