@@ -220,6 +220,10 @@ button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
         <input type="password" id="regPassword" placeholder="8 caractères minimum">
       </div>
       <div class="form-group">
+        <label>Confirmer le Mot de passe</label>
+        <input type="password" id="ConfirmregPassword" placeholder="8 caractères minimum">
+      </div>
+      <div class="form-group">
         <label>Date de naissance</label>
         <input type="date" id="regDob">
       </div>
@@ -418,19 +422,39 @@ window.doRegister = async function() {
   const btn = document.getElementById("registerBtn");
   const err = document.getElementById("registerError");
   err.textContent = "";
-  const firstName = document.getElementById("regFirstName").value.trim();
-  const lastName  = document.getElementById("regLastName").value.trim();
-  const username  = document.getElementById("regUsername").value.trim().replace(/^@/, "");
-  const email     = document.getElementById("regEmail").value.trim();
-  const password  = document.getElementById("regPassword").value;
-  const dob       = document.getElementById("regDob").value;
-  const country   = document.getElementById("regCountry").value;
-  if (!firstName || !lastName || !username || !email || !password || !dob || !country)
-    return err.textContent = "Tous les champs sont obligatoires.";
-  if (password.length < 8) return err.textContent = "Mot de passe trop court (8 car. min).";
-  if (username.length < 3) return err.textContent = "Pseudo trop court (3 car. min).";
-  if (avatarBase64 && avatarBase64.length > 750000)
-    return err.textContent = "Photo trop lourde, choisis une image plus petite.";
+ const firstName = document.getElementById("regFirstName").value.trim();
+ const lastName  = document.getElementById("regLastName").value.trim();
+ const username  = document.getElementById("regUsername").value.trim().replace(/^@/, "");
+ const email     = document.getElementById("regEmail").value.trim();
+ const password  = document.getElementById("regPassword").value;
+ const confirmPassword = document.getElementById("ConfirmregPassword").value;
+ const dob       = document.getElementById("regDob").value;
+ const country   = document.getElementById("regCountry").value;
+
+// Vérification champs obligatoires
+if (!firstName || !lastName || !username || !email || !password || !confirmPassword || !dob || !country) {
+  return err.textContent = "Tous les champs sont obligatoires.";
+}
+
+// Vérification longueur mot de passe
+if (password.length < 8) {
+  return err.textContent = "Mot de passe trop court (8 car. min).";
+}
+
+// Vérification correspondance mot de passe
+if (password !== confirmPassword) {
+  return err.textContent = "Les mots de passe ne correspondent pas.";
+}
+
+// Vérification pseudo
+if (username.length < 3) {
+  return err.textContent = "Pseudo trop court (3 car. min).";
+}
+
+// Vérification avatar
+if (avatarBase64 && avatarBase64.length > 750000) {
+  return err.textContent = "Photo trop lourde, choisis une image plus petite.";
+}
 
   btn.disabled = true; btn.textContent = "Création…";
   try {
