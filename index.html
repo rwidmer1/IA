@@ -55,8 +55,7 @@ h4 { text-align: center; color: #ff8c42; }
 }
 .avatar-preview:hover { border-color: #ff5e00; opacity: 0.85; }
 .avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 50%; }
-.avatar-placeholder { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #ff8c42; font-size: 0.68rem; text-align: center; }
-.avatar-placeholder span { font-size: 1.6rem; }
+.avatar-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #ff8c42; font-size: 0.68rem; text-align: center; }
 .avatar-upload-hint { font-size: 0.7rem; color: #666; }
 
 /* ─── BAN SCREEN ─── */
@@ -74,22 +73,123 @@ h4 { text-align: center; color: #ff8c42; }
 #chatSection { display: none; }
 #appHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 #appHeader h1 { margin: 0; }
-.header-right { display: flex; align-items: center; gap: 10px; }
-#headerAvatar {
+.header-right { display: flex; align-items: center; gap: 10px; position: relative; }
+
+/* ─── AVATAR BUTTON (header) ─── */
+#headerAvatarBtn {
   width: 36px; height: 36px; border-radius: 50%;
   background: #2a2f3a; border: 2px solid #ff8c42;
   display: flex; align-items: center; justify-content: center;
   font-size: 0.9rem; font-weight: 700; color: #ff8c42;
   overflow: hidden; flex-shrink: 0;
+  cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+  position: relative;
 }
-#headerAvatar img { width: 100%; height: 100%; object-fit: cover; }
+#headerAvatarBtn:hover { border-color: #ff5e00; transform: scale(1.06); }
+#headerAvatarBtn img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 #headerUsername { color: #ff8c42; font-size: 0.9rem; }
-.logout-btn {
-  background: #2a2f3a; border: none; color: #aaa;
-  padding: 7px 14px; border-radius: 8px; cursor: pointer;
+
+/* ─── PROFILE DROPDOWN ─── */
+#profileDropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 240px;
+  background: #1a1d24;
+  border: 1px solid #2a2f3a;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  z-index: 999;
+  overflow: hidden;
+  animation: dropIn 0.18s ease;
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+#profileDropdown.open { display: block; }
+
+.dd-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid #2a2f3a;
+  display: flex; align-items: center; gap: 10px;
+}
+.dd-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #2a2f3a; border: 2px solid #ff8c42;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 700; color: #ff8c42;
+  overflow: hidden; flex-shrink: 0;
+}
+.dd-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.dd-info { min-width: 0; }
+.dd-name { font-size: 0.88rem; font-weight: 600; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dd-pseudo { font-size: 0.72rem; color: #ff8c42; margin-top: 1px; }
+
+.dd-sep { height: 1px; background: #2a2f3a; margin: 4px 0; }
+
+.dd-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #ccc;
+  transition: background 0.15s, color 0.15s;
+  background: none; border: none; width: 100%; text-align: left;
   font-family: "Segoe UI", sans-serif;
 }
-.logout-btn:hover { color: #e05555; }
+.dd-item:hover { background: #2a2f3a; color: #eee; }
+.dd-item .dd-icon { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.75; }
+.dd-item.danger { color: #e05555; }
+.dd-item.danger:hover { background: rgba(224,85,85,0.1); color: #e05555; }
+
+/* ─── MODALS ─── */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);
+  z-index: 1000; align-items: center; justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+.modal-box {
+  background: #1a1d24; border: 1px solid #2a2f3a;
+  border-radius: 14px; padding: 28px 24px; width: 100%; max-width: 400px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.modal-box h3 { color: #ff8c42; font-size: 1rem; margin: 0 0 20px; }
+.modal-form-group { margin-bottom: 14px; }
+.modal-form-group label { display: block; font-size: 0.78rem; color: #aaa; margin-bottom: 5px; }
+.modal-form-group input {
+  width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #2a2f3a;
+  background: #0f1115; color: #eee;
+  font-family: "Segoe UI", sans-serif; font-size: 0.9rem;
+  outline: none; box-sizing: border-box; transition: border-color 0.2s;
+}
+.modal-form-group input:focus { border-color: #ff8c42; }
+.modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+.modal-error { color: #e05555; font-size: 0.78rem; margin-top: 8px; min-height: 16px; }
+.modal-success { color: #5dde6a; font-size: 0.78rem; margin-top: 8px; min-height: 16px; }
+
+/* ─── AVATAR MODAL ─── */
+.avatar-change-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+.avatar-change-preview {
+  width: 90px; height: 90px; border-radius: 50%;
+  background: #2a2f3a; border: 2px dashed #ff8c42;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; transition: opacity 0.2s;
+}
+.avatar-change-preview:hover { opacity: 0.8; }
+.avatar-change-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.avatar-change-preview .ph { font-size: 2rem; }
+
+/* ─── CHAT ─── */
 #chat {
   background: #1a1d24; border-radius: 12px; padding: 15px;
   height: 420px; overflow-y: auto;
@@ -139,6 +239,25 @@ button.btn-ghost {
   font-family: "Segoe UI", sans-serif; font-size: 0.85rem; cursor: pointer; margin-top: 6px;
 }
 button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
+button.btn-danger {
+  flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #e05555;
+  background: transparent; color: #e05555;
+  font-family: "Segoe UI", sans-serif; font-size: 0.9rem; cursor: pointer;
+}
+button.btn-danger:hover { background: rgba(224,85,85,0.1); }
+button.btn-cancel {
+  flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #2a2f3a;
+  background: transparent; color: #aaa;
+  font-family: "Segoe UI", sans-serif; font-size: 0.9rem; cursor: pointer;
+}
+button.btn-cancel:hover { border-color: #ff8c42; color: #ff8c42; }
+button.btn-save {
+  flex: 1; padding: 10px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg, #ff8c42, #ff5e00); color: white;
+  font-family: "Segoe UI", sans-serif; font-size: 0.9rem; cursor: pointer;
+}
+button.btn-save:hover { opacity: 0.85; }
+button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ─── INPUT ─── */
 #inputRow { display: flex; gap: 10px; margin-top: 10px; }
@@ -183,20 +302,17 @@ button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
 
     <!-- Register -->
     <div id="registerForm" class="hidden">
-
-      <!-- Avatar -->
       <div class="avatar-upload-wrap">
         <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('avatarInput').click()">
           <img id="avatarPreviewImg" alt="">
           <div class="avatar-placeholder" id="avatarPlaceholder">
-            <span>📷</span>
+            <svg style="width:28px;height:28px;color:#ff8c42;opacity:0.8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             <div>Choisir une photo</div>
           </div>
         </div>
         <span class="avatar-upload-hint">Optionnel · compressée automatiquement</span>
         <input type="file" id="avatarInput" accept="image/*" hidden onchange="handleAvatarUpload(this)">
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label>Prénom</label>
@@ -282,16 +398,56 @@ button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
   <div id="appHeader">
     <h1 style="margin:0">Assistant IA</h1>
     <div class="header-right">
-      <div id="headerAvatar"></div>
       <span id="headerUsername"></span>
-      <button class="logout-btn" onclick="doLogout()">Déconnexion</button>
+
+      <!-- Avatar cliquable -->
+      <div id="headerAvatarBtn" onclick="toggleDropdown(event)"></div>
+
+      <!-- Dropdown profil -->
+      <div id="profileDropdown">
+        <!-- En-tête avec avatar + nom -->
+        <div class="dd-header">
+          <div class="dd-avatar" id="ddAvatar"></div>
+          <div class="dd-info">
+            <div class="dd-name" id="ddName"></div>
+            <div class="dd-pseudo" id="ddPseudo"></div>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div style="padding: 6px 0;">
+          <button class="dd-item" onclick="openEditProfile()">
+            <svg class="dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Modifier le profil
+          </button>
+          <button class="dd-item" onclick="openChangePassword()">
+            <svg class="dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Changer le mot de passe
+          </button>
+          <button class="dd-item" onclick="openChangeAvatar()">
+            <svg class="dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Changer la photo
+          </button>
+          <div class="dd-sep"></div>
+          <button class="dd-item danger" onclick="openDeleteAccount()">
+            <svg class="dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>
+            Supprimer le compte
+          </button>
+          <div class="dd-sep"></div>
+          <button class="dd-item danger" onclick="doLogout()">
+            <svg class="dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Se déconnecter
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <div id="chat"></div>
 
   <div id="dropzone">
-    📎 Dépose une image ou clique pour joindre
+    <svg style="width:14px;height:14px;vertical-align:-2px;margin-right:5px;opacity:0.7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+    Dépose une image ou clique pour joindre
     <input type="file" id="fileInput" accept="image/*" multiple hidden>
   </div>
 
@@ -301,15 +457,118 @@ button.btn-ghost:hover { border-color: #ff8c42; color: #ff8c42; }
   </div>
 </div>
 
+<!-- ══ MODAL : Modifier le profil ══ -->
+<div class="modal-backdrop" id="modalEditProfile">
+  <div class="modal-box">
+    <h3><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifier le profil</h3>
+    <div class="form-row">
+      <div class="modal-form-group">
+        <label>Prénom</label>
+        <input type="text" id="editFirstName" placeholder="Jean">
+      </div>
+      <div class="modal-form-group">
+        <label>Nom</label>
+        <input type="text" id="editLastName" placeholder="Dupont">
+      </div>
+    </div>
+    <div class="modal-form-group">
+      <label>Pseudo</label>
+      <input type="text" id="editUsername" placeholder="@pseudo">
+    </div>
+    <div class="modal-form-group">
+      <label>Pays</label>
+      <select id="editCountry" style="width:100%;padding:10px;border-radius:8px;border:1px solid #2a2f3a;background:#0f1115;color:#eee;font-family:'Segoe UI',sans-serif;font-size:0.9rem;outline:none;box-sizing:border-box;">
+        <option value="">-- Sélectionner --</option>
+        <option>France</option><option>Suisse</option><option>Belgique</option>
+        <option>Canada</option><option>Luxembourg</option><option>Maroc</option>
+        <option>Algérie</option><option>Tunisie</option><option>Sénégal</option>
+        <option>Côte d'Ivoire</option><option>Allemagne</option><option>Espagne</option>
+        <option>Italie</option><option>Portugal</option><option>Royaume-Uni</option>
+        <option>États-Unis</option><option>Autre</option>
+      </select>
+    </div>
+    <div class="modal-error" id="editProfileError"></div>
+    <div class="modal-success" id="editProfileSuccess"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalEditProfile')">Annuler</button>
+      <button class="btn-save" id="editProfileBtn" onclick="saveProfile()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL : Changer le mot de passe ══ -->
+<div class="modal-backdrop" id="modalChangePassword">
+  <div class="modal-box">
+    <h3><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Changer le mot de passe</h3>
+    <div class="modal-form-group">
+      <label>Nouveau mot de passe</label>
+      <input type="password" id="newPassword" placeholder="8 caractères minimum">
+    </div>
+    <div class="modal-form-group">
+      <label>Confirmer le nouveau mot de passe</label>
+      <input type="password" id="confirmNewPassword" placeholder="8 caractères minimum">
+    </div>
+    <div class="modal-error" id="changePasswordError"></div>
+    <div class="modal-success" id="changePasswordSuccess"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalChangePassword')">Annuler</button>
+      <button class="btn-save" id="changePasswordBtn" onclick="savePassword()">Changer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL : Changer la photo ══ -->
+<div class="modal-backdrop" id="modalChangeAvatar">
+  <div class="modal-box">
+    <h3><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Changer la photo de profil</h3>
+    <div class="avatar-change-wrap">
+      <div class="avatar-change-preview" id="avatarChangePreview" onclick="document.getElementById('avatarChangeInput').click()">
+        <img id="avatarChangeImg" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+        <svg id="avatarChangePh" style="width:32px;height:32px;color:#ff8c42;opacity:0.7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <input type="file" id="avatarChangeInput" accept="image/*" hidden onchange="handleAvatarChange(this)">
+      <span style="font-size:0.75rem;color:#666;">Clique pour choisir · max 200×200px compressé</span>
+    </div>
+    <div class="modal-error" id="changeAvatarError"></div>
+    <div class="modal-success" id="changeAvatarSuccess"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalChangeAvatar')">Annuler</button>
+      <button class="btn-save" id="changeAvatarBtn" onclick="saveAvatar()" disabled>Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL : Supprimer le compte ══ -->
+<div class="modal-backdrop" id="modalDeleteAccount">
+  <div class="modal-box">
+    <h3 style="color:#e05555;"><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="#e05555" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>Supprimer le compte</h3>
+    <p style="color:#aaa;font-size:0.85rem;line-height:1.6;margin-bottom:14px;">
+      Cette action est <strong style="color:#e05555;">irréversible</strong>. Ton compte et toutes tes données seront définitivement supprimés.
+    </p>
+    <div class="modal-form-group">
+      <label>Confirme ton mot de passe</label>
+      <input type="password" id="deleteConfirmPassword" placeholder="Ton mot de passe actuel">
+    </div>
+    <div class="modal-error" id="deleteAccountError"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalDeleteAccount')">Annuler</button>
+      <button class="btn-danger" id="deleteAccountBtn" onclick="deleteAccount()">Supprimer définitivement</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onValue }        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import {
   getAuth, createUserWithEmailAndPassword,
   signInWithEmailAndPassword, sendEmailVerification,
-  onAuthStateChanged, signOut, reload
+  onAuthStateChanged, signOut, reload,
+  updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyA_B2JH5kcukD4tUFjWGiGYFheVyAzCxfk",
@@ -325,37 +584,58 @@ const app   = initializeApp(firebaseConfig);
 const auth  = getAuth(app);
 const db    = getDatabase(app);
 const store = getFirestore(app);
-let currentUser   = null;
-let pendingImages = [];
-let banUnsub      = null;
-let avatarBase64  = null;
 
-/* ─── AVATAR COMPRESSION ─── */
+let currentUser    = null;
+let currentProfile = null;
+let pendingImages  = [];
+let banUnsub       = null;
+let avatarBase64   = null;
+let newAvatarBase64 = null;
+
+/* ─── AVATAR COMPRESSION (inscription) ─── */
 window.handleAvatarUpload = function(input) {
   const file = input.files[0];
   if (!file) return;
+  compressImage(file, 200, b64 => {
+    avatarBase64 = b64;
+    const img = document.getElementById("avatarPreviewImg");
+    img.src = b64; img.style.display = "block";
+    const ph = document.getElementById("avatarPlaceholder");
+    if (ph) ph.style.display = "none";
+  });
+};
+
+/* ─── AVATAR COMPRESSION (changement) ─── */
+window.handleAvatarChange = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  compressImage(file, 200, b64 => {
+    newAvatarBase64 = b64;
+    const img = document.getElementById("avatarChangeImg");
+    img.src = b64; img.style.display = "block";
+    const ph = document.getElementById("avatarChangePh");
+    if (ph) ph.style.display = "none";
+    document.getElementById("changeAvatarBtn").disabled = false;
+  });
+};
+
+function compressImage(file, maxSize, callback) {
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const maxSize = 200;
       let w = img.width, h = img.height;
       if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
       else        { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
       canvas.width = w; canvas.height = h;
       canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-      avatarBase64 = canvas.toDataURL("image/jpeg", 0.82);
-      // Show preview
-      const previewImg = document.getElementById("avatarPreviewImg");
-      previewImg.src = avatarBase64;
-      previewImg.style.display = "block";
-      document.getElementById("avatarPlaceholder").style.display = "none";
+      callback(canvas.toDataURL("image/jpeg", 0.82));
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
-};
+}
 
 /* ─── SECTIONS ─── */
 function hideAll() {
@@ -372,17 +652,12 @@ function showBanned() { hideAll(); document.getElementById("bannedSection").styl
 
 function showChat(user, profile) {
   hideAll();
+  currentProfile = profile;
   document.getElementById("chatSection").style.display = "block";
   const pseudo = profile.username || user.email.split("@")[0];
   document.getElementById("headerUsername").textContent = "@" + pseudo;
 
-  // Header avatar
-  const avatarEl = document.getElementById("headerAvatar");
-  if (profile.photoURL) {
-    avatarEl.innerHTML = `<img src="${profile.photoURL}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-  } else {
-    avatarEl.textContent = (profile.firstName?.[0] || pseudo[0] || "?").toUpperCase();
-  }
+  refreshHeaderAvatar(profile, pseudo);
 
   const msgsRef = ref(db, `conversations/${user.uid}/messages`);
   onValue(msgsRef, snap => renderChat(snap.val() || {}));
@@ -391,6 +666,25 @@ function showChat(user, profile) {
   banUnsub = onSnapshot(doc(store, "users", user.uid), snap => {
     if (snap.exists() && snap.data().banned === true) showBanned();
   });
+}
+
+function refreshHeaderAvatar(profile, pseudo) {
+  pseudo = pseudo || (profile.username || currentUser?.email?.split("@")[0] || "?");
+  const btn = document.getElementById("headerAvatarBtn");
+  const ddAv = document.getElementById("ddAvatar");
+  if (profile.photoURL) {
+    btn.innerHTML = `<img src="${profile.photoURL}" alt="avatar">`;
+    ddAv.innerHTML = `<img src="${profile.photoURL}" alt="avatar">`;
+  } else {
+    const letter = (profile.firstName?.[0] || pseudo[0] || "?").toUpperCase();
+    btn.textContent = letter;
+    ddAv.textContent = letter;
+  }
+  document.getElementById("ddName").textContent =
+    (profile.firstName && profile.lastName)
+      ? `${profile.firstName} ${profile.lastName}`
+      : pseudo;
+  document.getElementById("ddPseudo").textContent = "@" + pseudo;
 }
 
 /* ─── AUTH STATE ─── */
@@ -422,39 +716,21 @@ window.doRegister = async function() {
   const btn = document.getElementById("registerBtn");
   const err = document.getElementById("registerError");
   err.textContent = "";
- const firstName = document.getElementById("regFirstName").value.trim();
- const lastName  = document.getElementById("regLastName").value.trim();
- const username  = document.getElementById("regUsername").value.trim().replace(/^@/, "");
- const email     = document.getElementById("regEmail").value.trim();
- const password  = document.getElementById("regPassword").value;
- const confirmPassword = document.getElementById("ConfirmregPassword").value;
- const dob       = document.getElementById("regDob").value;
- const country   = document.getElementById("regCountry").value;
+  const firstName = document.getElementById("regFirstName").value.trim();
+  const lastName  = document.getElementById("regLastName").value.trim();
+  const username  = document.getElementById("regUsername").value.trim().replace(/^@/, "");
+  const email     = document.getElementById("regEmail").value.trim();
+  const password  = document.getElementById("regPassword").value;
+  const confirmPassword = document.getElementById("ConfirmregPassword").value;
+  const dob       = document.getElementById("regDob").value;
+  const country   = document.getElementById("regCountry").value;
 
-// Vérification champs obligatoires
-if (!firstName || !lastName || !username || !email || !password || !confirmPassword || !dob || !country) {
-  return err.textContent = "Tous les champs sont obligatoires.";
-}
-
-// Vérification longueur mot de passe
-if (password.length < 8) {
-  return err.textContent = "Mot de passe trop court (8 car. min).";
-}
-
-// Vérification correspondance mot de passe
-if (password !== confirmPassword) {
-  return err.textContent = "Les mots de passe ne correspondent pas.";
-}
-
-// Vérification pseudo
-if (username.length < 3) {
-  return err.textContent = "Pseudo trop court (3 car. min).";
-}
-
-// Vérification avatar
-if (avatarBase64 && avatarBase64.length > 750000) {
-  return err.textContent = "Photo trop lourde, choisis une image plus petite.";
-}
+  if (!firstName || !lastName || !username || !email || !password || !confirmPassword || !dob || !country)
+    return err.textContent = "Tous les champs sont obligatoires.";
+  if (password.length < 8) return err.textContent = "Mot de passe trop court (8 car. min).";
+  if (password !== confirmPassword) return err.textContent = "Les mots de passe ne correspondent pas.";
+  if (username.length < 3) return err.textContent = "Pseudo trop court (3 car. min).";
+  if (avatarBase64 && avatarBase64.length > 750000) return err.textContent = "Photo trop lourde.";
 
   btn.disabled = true; btn.textContent = "Création…";
   try {
@@ -522,14 +798,189 @@ window.backToLogin = async function() { await signOut(auth); showAuth(); };
 
 /* ─── LOGOUT ─── */
 window.doLogout = async function() {
+  closeDropdown();
   if (banUnsub) { banUnsub(); banUnsub = null; }
   await signOut(auth);
-  currentUser = null; pendingImages = [];
+  currentUser = null; currentProfile = null; pendingImages = [];
   document.getElementById("chat").innerHTML = "";
 };
 window.doBannedLogout = async function() {
   if (banUnsub) { banUnsub(); banUnsub = null; }
   await signOut(auth); showAuth();
+};
+
+/* ─── DROPDOWN ─── */
+window.toggleDropdown = function(e) {
+  e.stopPropagation();
+  document.getElementById("profileDropdown").classList.toggle("open");
+};
+function closeDropdown() {
+  document.getElementById("profileDropdown").classList.remove("open");
+}
+document.addEventListener("click", e => {
+  const dd = document.getElementById("profileDropdown");
+  const btn = document.getElementById("headerAvatarBtn");
+  if (dd.classList.contains("open") && !dd.contains(e.target) && e.target !== btn)
+    closeDropdown();
+});
+
+/* ─── MODALS ─── */
+window.openEditProfile = function() {
+  closeDropdown();
+  if (currentProfile) {
+    document.getElementById("editFirstName").value = currentProfile.firstName || "";
+    document.getElementById("editLastName").value  = currentProfile.lastName  || "";
+    document.getElementById("editUsername").value  = currentProfile.username  || "";
+    document.getElementById("editCountry").value   = currentProfile.country   || "";
+  }
+  document.getElementById("editProfileError").textContent = "";
+  document.getElementById("editProfileSuccess").textContent = "";
+  document.getElementById("modalEditProfile").classList.add("open");
+};
+
+window.openChangePassword = function() {
+  closeDropdown();
+  document.getElementById("newPassword").value = "";
+  document.getElementById("confirmNewPassword").value = "";
+  document.getElementById("changePasswordError").textContent = "";
+  document.getElementById("changePasswordSuccess").textContent = "";
+  document.getElementById("modalChangePassword").classList.add("open");
+};
+
+window.openChangeAvatar = function() {
+  closeDropdown();
+  newAvatarBase64 = null;
+  const img = document.getElementById("avatarChangeImg");
+  img.style.display = "none"; img.src = "";
+  document.getElementById("avatarChangePh").style.display = "block";
+  document.getElementById("avatarChangeInput").value = "";
+  document.getElementById("changeAvatarBtn").disabled = true;
+  document.getElementById("changeAvatarError").textContent = "";
+  document.getElementById("changeAvatarSuccess").textContent = "";
+  document.getElementById("modalChangeAvatar").classList.add("open");
+};
+
+window.openDeleteAccount = function() {
+  closeDropdown();
+  document.getElementById("deleteConfirmPassword").value = "";
+  document.getElementById("deleteAccountError").textContent = "";
+  document.getElementById("modalDeleteAccount").classList.add("open");
+};
+
+window.closeModal = function(id) {
+  document.getElementById(id).classList.remove("open");
+};
+
+/* ─── SAVE PROFILE ─── */
+window.saveProfile = async function() {
+  const btn = document.getElementById("editProfileBtn");
+  const err = document.getElementById("editProfileError");
+  const suc = document.getElementById("editProfileSuccess");
+  err.textContent = ""; suc.textContent = "";
+
+  const firstName = document.getElementById("editFirstName").value.trim();
+  const lastName  = document.getElementById("editLastName").value.trim();
+  const username  = document.getElementById("editUsername").value.trim().replace(/^@/, "");
+  const country   = document.getElementById("editCountry").value;
+
+  if (!firstName || !lastName || !username || !country)
+    return err.textContent = "Tous les champs sont obligatoires.";
+  if (username.length < 3)
+    return err.textContent = "Pseudo trop court (3 car. min).";
+
+  btn.disabled = true; btn.textContent = "Sauvegarde…";
+  try {
+    await updateDoc(doc(store, "users", currentUser.uid), { firstName, lastName, username, country });
+    await updateDoc(doc(store, "userList", currentUser.uid), { firstName, lastName, username, country });
+    currentProfile = { ...currentProfile, firstName, lastName, username, country };
+    document.getElementById("headerUsername").textContent = "@" + username;
+    refreshHeaderAvatar(currentProfile);
+    suc.textContent = "✓ Profil mis à jour !";
+    setTimeout(() => closeModal("modalEditProfile"), 1000);
+  } catch(e) {
+    err.textContent = "Erreur : " + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "Sauvegarder";
+  }
+};
+
+/* ─── SAVE PASSWORD ─── */
+window.savePassword = async function() {
+  const btn = document.getElementById("changePasswordBtn");
+  const err = document.getElementById("changePasswordError");
+  const suc = document.getElementById("changePasswordSuccess");
+  err.textContent = ""; suc.textContent = "";
+
+  const newPass     = document.getElementById("newPassword").value;
+  const confirmPass = document.getElementById("confirmNewPassword").value;
+
+  if (!newPass || !confirmPass) return err.textContent = "Remplis tous les champs.";
+  if (newPass.length < 8) return err.textContent = "Mot de passe trop court (8 car. min).";
+  if (newPass !== confirmPass) return err.textContent = "Les mots de passe ne correspondent pas.";
+
+  btn.disabled = true; btn.textContent = "Changement…";
+  try {
+    await updatePassword(currentUser, newPass);
+    suc.textContent = "✓ Mot de passe changé !";
+    setTimeout(() => closeModal("modalChangePassword"), 1000);
+  } catch(e) {
+    if (e.code === "auth/requires-recent-login")
+      err.textContent = "Session expirée. Reconnecte-toi puis réessaie.";
+    else err.textContent = "Erreur : " + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "Changer";
+  }
+};
+
+/* ─── SAVE AVATAR ─── */
+window.saveAvatar = async function() {
+  const btn = document.getElementById("changeAvatarBtn");
+  const err = document.getElementById("changeAvatarError");
+  const suc = document.getElementById("changeAvatarSuccess");
+  err.textContent = ""; suc.textContent = "";
+
+  if (!newAvatarBase64) return err.textContent = "Choisis une image d'abord.";
+  if (newAvatarBase64.length > 750000) return err.textContent = "Image trop lourde, choisis une plus petite.";
+
+  btn.disabled = true; btn.textContent = "Sauvegarde…";
+  try {
+    await updateDoc(doc(store, "users", currentUser.uid), { photoURL: newAvatarBase64 });
+    await updateDoc(doc(store, "userList", currentUser.uid), { photoURL: newAvatarBase64 });
+    currentProfile = { ...currentProfile, photoURL: newAvatarBase64 };
+    refreshHeaderAvatar(currentProfile);
+    suc.textContent = "✓ Photo mise à jour !";
+    setTimeout(() => closeModal("modalChangeAvatar"), 1000);
+  } catch(e) {
+    err.textContent = "Erreur : " + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "Sauvegarder";
+  }
+};
+
+/* ─── DELETE ACCOUNT ─── */
+window.deleteAccount = async function() {
+  const btn = document.getElementById("deleteAccountBtn");
+  const err = document.getElementById("deleteAccountError");
+  err.textContent = "";
+  const password = document.getElementById("deleteConfirmPassword").value;
+  if (!password) return err.textContent = "Entre ton mot de passe pour confirmer.";
+
+  btn.disabled = true; btn.textContent = "Suppression…";
+  try {
+    const credential = EmailAuthProvider.credential(currentUser.email, password);
+    await reauthenticateWithCredential(currentUser, credential);
+    await deleteDoc(doc(store, "users", currentUser.uid));
+    await deleteDoc(doc(store, "userList", currentUser.uid));
+    const { remove: dbRemove, ref: dbRef } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
+    await dbRemove(dbRef(db, `conversations/${currentUser.uid}`));
+    await deleteUser(currentUser);
+    showAuth();
+  } catch(e) {
+    if (e.code === "auth/wrong-password" || e.code === "auth/invalid-credential")
+      err.textContent = "Mot de passe incorrect.";
+    else err.textContent = "Erreur : " + e.message;
+    btn.disabled = false; btn.textContent = "Supprimer définitivement";
+  }
 };
 
 /* ─── CHAT RENDER ─── */
@@ -564,7 +1015,10 @@ window.sendMessage = async function() {
   const imgs = [...pendingImages]; pendingImages = [];
   if (text) await push(msgsRef, { from: "user", text, ts: Date.now() });
   for (const img of imgs) await push(msgsRef, { from: "user", image: img, ts: Date.now() });
-  try { await updateDoc(doc(store, "userList", currentUser.uid), { lastUserMsgTs: Date.now() }); } catch(e) {}
+  try {
+    const { updateDoc: ud, doc: d } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    await ud(d(store, "userList", currentUser.uid), { lastUserMsgTs: Date.now() });
+  } catch(e) {}
 };
 
 /* ─── DROPZONE ─── */
