@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Assistant IA</title>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <style>
 body {
   font-family: "Segoe UI", sans-serif;
@@ -54,9 +55,24 @@ h4 { text-align: center; color: #ff8c42; }
   cursor: pointer; overflow: hidden; transition: border-color 0.2s, opacity 0.2s;
 }
 .avatar-preview:hover { border-color: #ff5e00; opacity: 0.85; }
+.avatar-preview.required-pulse { border-color: #e05555; animation: pulseBorder 1s ease-in-out 3; }
+@keyframes pulseBorder {
+  0%,100% { border-color: #e05555; box-shadow: 0 0 0 0 rgba(224,85,85,0); }
+  50% { border-color: #ff4444; box-shadow: 0 0 0 6px rgba(224,85,85,0.2); }
+}
 .avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: none; border-radius: 50%; }
 .avatar-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #ff8c42; font-size: 0.68rem; text-align: center; }
 .avatar-upload-hint { font-size: 0.7rem; color: #666; }
+.avatar-required-badge {
+  font-size: 0.65rem; color: #e05555;
+  background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.3);
+  border-radius: 4px; padding: 2px 7px;
+}
+
+/* ─── RECAPTCHA ─── */
+.recaptcha-wrap {
+  display: flex; justify-content: center; margin-bottom: 10px;
+}
 
 /* ─── BAN SCREEN ─── */
 #bannedSection { display: none; text-align: center; padding: 60px 20px; }
@@ -187,7 +203,6 @@ h4 { text-align: center; color: #ff8c42; }
 }
 .avatar-change-preview:hover { opacity: 0.8; }
 .avatar-change-preview img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.avatar-change-preview .ph { font-size: 2rem; }
 
 /* ─── CHAT ─── */
 #chat {
@@ -289,8 +304,8 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
     <!-- Login -->
     <div id="loginForm">
       <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="example@domain.com">
+        <label>Email ou pseudo</label>
+        <input type="text" id="loginIdentifier" placeholder="email@domaine.com ou @pseudo">
       </div>
       <div class="form-group">
         <label>Mot de passe</label>
@@ -310,7 +325,8 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
             <div>Choisir une photo</div>
           </div>
         </div>
-        <span class="avatar-upload-hint">Optionnel · compressée automatiquement</span>
+        <span class="avatar-required-badge">⚠ Photo obligatoire</span>
+        <span class="avatar-upload-hint">Compressée automatiquement · max 200×200px</span>
         <input type="file" id="avatarInput" accept="image/*" hidden onchange="handleAvatarUpload(this)">
       </div>
       <div class="form-row">
@@ -354,6 +370,10 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
           <option>Italie</option><option>Portugal</option><option>Royaume-Uni</option>
           <option>États-Unis</option><option>Autre</option>
         </select>
+      </div>
+      <!-- reCAPTCHA v2 (clé de test Google : 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI) -->
+      <div class="recaptcha-wrap">
+        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
       </div>
       <button class="btn" id="registerBtn" onclick="doRegister()">Créer mon compte</button>
       <div class="auth-error" id="registerError"></div>
@@ -399,13 +419,8 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
     <h1 style="margin:0">Assistant IA</h1>
     <div class="header-right">
       <span id="headerUsername"></span>
-
-      <!-- Avatar cliquable -->
       <div id="headerAvatarBtn" onclick="toggleDropdown(event)"></div>
-
-      <!-- Dropdown profil -->
       <div id="profileDropdown">
-        <!-- En-tête avec avatar + nom -->
         <div class="dd-header">
           <div class="dd-avatar" id="ddAvatar"></div>
           <div class="dd-info">
@@ -413,8 +428,6 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
             <div class="dd-pseudo" id="ddPseudo"></div>
           </div>
         </div>
-
-        <!-- Items -->
         <div style="padding: 6px 0;">
           <button class="dd-item" onclick="openEditProfile()">
             <svg class="dd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -460,7 +473,7 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 <!-- ══ MODAL : Modifier le profil ══ -->
 <div class="modal-backdrop" id="modalEditProfile">
   <div class="modal-box">
-    <h3><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Modifier le profil</h3>
+    <h3>Modifier le profil</h3>
     <div class="form-row">
       <div class="modal-form-group">
         <label>Prénom</label>
@@ -499,7 +512,7 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 <!-- ══ MODAL : Changer le mot de passe ══ -->
 <div class="modal-backdrop" id="modalChangePassword">
   <div class="modal-box">
-    <h3><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Changer le mot de passe</h3>
+    <h3>Changer le mot de passe</h3>
     <div class="modal-form-group">
       <label>Nouveau mot de passe</label>
       <input type="password" id="newPassword" placeholder="8 caractères minimum">
@@ -520,7 +533,7 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 <!-- ══ MODAL : Changer la photo ══ -->
 <div class="modal-backdrop" id="modalChangeAvatar">
   <div class="modal-box">
-    <h3><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Changer la photo de profil</h3>
+    <h3>Changer la photo de profil</h3>
     <div class="avatar-change-wrap">
       <div class="avatar-change-preview" id="avatarChangePreview" onclick="document.getElementById('avatarChangeInput').click()">
         <img id="avatarChangeImg" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
@@ -541,7 +554,7 @@ button.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 <!-- ══ MODAL : Supprimer le compte ══ -->
 <div class="modal-backdrop" id="modalDeleteAccount">
   <div class="modal-box">
-    <h3 style="color:#e05555;"><svg style="width:15px;height:15px;vertical-align:-2px;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="#e05555" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>Supprimer le compte</h3>
+    <h3 style="color:#e05555;">Supprimer le compte</h3>
     <p style="color:#aaa;font-size:0.85rem;line-height:1.6;margin-bottom:14px;">
       Cette action est <strong style="color:#e05555;">irréversible</strong>. Ton compte et toutes tes données seront définitivement supprimés.
     </p>
@@ -567,7 +580,8 @@ import {
   updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc
+  getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteDoc,
+  collection, query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -602,6 +616,8 @@ window.handleAvatarUpload = function(input) {
     img.src = b64; img.style.display = "block";
     const ph = document.getElementById("avatarPlaceholder");
     if (ph) ph.style.display = "none";
+    // Remove error highlight if any
+    document.getElementById("avatarPreview").classList.remove("required-pulse");
   });
 };
 
@@ -656,7 +672,6 @@ function showChat(user, profile) {
   document.getElementById("chatSection").style.display = "block";
   const pseudo = profile.username || user.email.split("@")[0];
   document.getElementById("headerUsername").textContent = "@" + pseudo;
-
   refreshHeaderAvatar(profile, pseudo);
 
   const msgsRef = ref(db, `conversations/${user.uid}/messages`);
@@ -711,15 +726,41 @@ window.showTab = function(tab) {
   document.getElementById("registerError").textContent = "";
 };
 
+/* ─── UNIQUENESS CHECKS ─── */
+async function isEmailTaken(email) {
+  const q = query(collection(store, "userList"), where("email", "==", email));
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+async function isUsernameTaken(username) {
+  const q = query(collection(store, "userList"), where("username", "==", username));
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
 /* ─── REGISTER ─── */
 window.doRegister = async function() {
   const btn = document.getElementById("registerBtn");
   const err = document.getElementById("registerError");
   err.textContent = "";
+
+  // Check reCAPTCHA
+  const recaptchaResponse = grecaptcha.getResponse();
+  if (!recaptchaResponse) return err.textContent = "Veuillez compléter le reCAPTCHA.";
+
+  // Check avatar (obligatoire)
+  if (!avatarBase64) {
+    const preview = document.getElementById("avatarPreview");
+    preview.classList.remove("required-pulse");
+    void preview.offsetWidth; // reflow to restart animation
+    preview.classList.add("required-pulse");
+    return err.textContent = "La photo de profil est obligatoire.";
+  }
+
   const firstName = document.getElementById("regFirstName").value.trim();
   const lastName  = document.getElementById("regLastName").value.trim();
-  const username  = document.getElementById("regUsername").value.trim().replace(/^@/, "");
-  const email     = document.getElementById("regEmail").value.trim();
+  const username  = document.getElementById("regUsername").value.trim().replace(/^@/, "").toLowerCase();
+  const email     = document.getElementById("regEmail").value.trim().toLowerCase();
   const password  = document.getElementById("regPassword").value;
   const confirmPassword = document.getElementById("ConfirmregPassword").value;
   const dob       = document.getElementById("regDob").value;
@@ -730,37 +771,70 @@ window.doRegister = async function() {
   if (password.length < 8) return err.textContent = "Mot de passe trop court (8 car. min).";
   if (password !== confirmPassword) return err.textContent = "Les mots de passe ne correspondent pas.";
   if (username.length < 3) return err.textContent = "Pseudo trop court (3 car. min).";
-  if (avatarBase64 && avatarBase64.length > 750000) return err.textContent = "Photo trop lourde.";
+  if (avatarBase64.length > 750000) return err.textContent = "Photo trop lourde.";
 
-  btn.disabled = true; btn.textContent = "Création…";
+  btn.disabled = true; btn.textContent = "Vérification…";
+
   try {
+    // Check uniqueness
+    if (await isEmailTaken(email)) {
+      err.textContent = "Cet email est déjà utilisé.";
+      btn.disabled = false; btn.textContent = "Créer mon compte";
+      return;
+    }
+    if (await isUsernameTaken(username)) {
+      err.textContent = "Ce pseudo est déjà pris.";
+      btn.disabled = false; btn.textContent = "Créer mon compte";
+      return;
+    }
+
+    btn.textContent = "Création…";
     const cred = await createUserWithEmailAndPassword(auth, email, password);
-    const base = { firstName, lastName, username, email, dob, country, banned: false, createdAt: Date.now(), photoURL: avatarBase64 || null };
+    const base = { firstName, lastName, username, email, dob, country, banned: false, createdAt: Date.now(), photoURL: avatarBase64 };
     await setDoc(doc(store, "users", cred.user.uid), base);
-    await setDoc(doc(store, "userList", cred.user.uid), { firstName, lastName, username, email, country, banned: false, uid: cred.user.uid, photoURL: avatarBase64 || null });
+    await setDoc(doc(store, "userList", cred.user.uid), { firstName, lastName, username, email, country, banned: false, uid: cred.user.uid, photoURL: avatarBase64 });
     await sendEmailVerification(cred.user);
     showVerify(email);
   } catch(e) {
     err.textContent = firebaseError(e.code);
   } finally {
     btn.disabled = false; btn.textContent = "Créer mon compte";
+    grecaptcha.reset();
   }
 };
 
-/* ─── LOGIN ─── */
+/* ─── LOGIN (email OR username) ─── */
 window.doLogin = async function() {
   const btn = document.getElementById("loginBtn");
   const err = document.getElementById("loginError");
   err.textContent = "";
-  const email    = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
-  if (!email || !password) return err.textContent = "Remplis tous les champs.";
+
+  const identifier = document.getElementById("loginIdentifier").value.trim();
+  const password   = document.getElementById("loginPassword").value;
+
+  if (!identifier || !password) return err.textContent = "Remplis tous les champs.";
   btn.disabled = true; btn.textContent = "Connexion…";
+
   try {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    if (!cred.user.emailVerified) { showVerify(email); return; }
-    const snap = await getDoc(doc(store, "users", cred.user.uid));
-    if (snap.exists() && snap.data().banned === true) {
+    let emailToUse = identifier;
+
+    // If identifier is not an email, look up username in userList
+    if (!identifier.includes("@") || identifier.startsWith("@")) {
+      const pseudo = identifier.replace(/^@/, "").toLowerCase();
+      const q = query(collection(store, "userList"), where("username", "==", pseudo));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        err.textContent = "Aucun compte avec ce pseudo.";
+        btn.disabled = false; btn.textContent = "Se connecter";
+        return;
+      }
+      emailToUse = snap.docs[0].data().email;
+    }
+
+    const cred = await signInWithEmailAndPassword(auth, emailToUse, password);
+    if (!cred.user.emailVerified) { showVerify(emailToUse); return; }
+    const snap2 = await getDoc(doc(store, "users", cred.user.uid));
+    if (snap2.exists() && snap2.data().banned === true) {
       await signOut(auth);
       err.textContent = "Ton compte a été suspendu. Contacte le support.";
       return;
@@ -880,7 +954,7 @@ window.saveProfile = async function() {
 
   const firstName = document.getElementById("editFirstName").value.trim();
   const lastName  = document.getElementById("editLastName").value.trim();
-  const username  = document.getElementById("editUsername").value.trim().replace(/^@/, "");
+  const username  = document.getElementById("editUsername").value.trim().replace(/^@/, "").toLowerCase();
   const country   = document.getElementById("editCountry").value;
 
   if (!firstName || !lastName || !username || !country)
@@ -888,8 +962,17 @@ window.saveProfile = async function() {
   if (username.length < 3)
     return err.textContent = "Pseudo trop court (3 car. min).";
 
-  btn.disabled = true; btn.textContent = "Sauvegarde…";
+  btn.disabled = true; btn.textContent = "Vérification…";
   try {
+    // Check username uniqueness (only if changed)
+    if (username !== currentProfile.username) {
+      if (await isUsernameTaken(username)) {
+        err.textContent = "Ce pseudo est déjà pris.";
+        btn.disabled = false; btn.textContent = "Sauvegarder";
+        return;
+      }
+    }
+    btn.textContent = "Sauvegarde…";
     await updateDoc(doc(store, "users", currentUser.uid), { firstName, lastName, username, country });
     await updateDoc(doc(store, "userList", currentUser.uid), { firstName, lastName, username, country });
     currentProfile = { ...currentProfile, firstName, lastName, username, country };
