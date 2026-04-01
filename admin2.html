@@ -20,6 +20,8 @@
     --user-acc: #5dde6a;
     --bot-bg:   #1a1e2a;
     --danger:   #e05555;
+    --auto-on:  #5dde6a;
+    --auto-off: #6b7290;
     --radius:   14px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,21 +67,54 @@
 
   /* ─── SIDEBAR ─── */
   #sidebar {
-    width: 260px; flex-shrink: 0;
+    width: 270px; flex-shrink: 0;
     background: var(--surface); border-right: 1px solid var(--border);
     display: flex; flex-direction: column; overflow: hidden;
   }
   .sidebar-header {
-    padding: 16px 16px 12px; border-bottom: 1px solid var(--border);
+    padding: 14px 14px 10px; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 10px;
   }
   .status-dot {
     width: 8px; height: 8px; border-radius: 50%;
     background: var(--user-acc); box-shadow: 0 0 8px var(--user-acc);
-    animation: pulse 2s infinite; flex-shrink: 0;
+    animation: blink 2s infinite; flex-shrink: 0;
   }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  .sidebar-header h2 { font-size: 0.9rem; font-weight: 800; color: var(--accent); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .sidebar-header h2 { font-size: 0.88rem; font-weight: 800; color: var(--accent); flex: 1; }
+
+  /* ─── GLOBAL AUTO TOGGLE ─── */
+  .global-auto-wrap {
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .global-auto-label {
+    font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .global-auto-label svg { width: 12px; height: 12px; }
+  .toggle-switch {
+    position: relative; width: 38px; height: 20px; flex-shrink: 0; cursor: pointer;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute; inset: 0; border-radius: 99px;
+    background: var(--border); transition: background 0.25s;
+  }
+  .toggle-switch input:checked + .toggle-track { background: var(--auto-on); }
+  .toggle-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white; transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .toggle-switch input:checked ~ .toggle-thumb { transform: translateX(18px); }
+  .global-auto-status {
+    font-size: 0.65rem; font-family: 'JetBrains Mono', monospace;
+    padding: 2px 7px; border-radius: 4px;
+    background: rgba(107,114,144,0.15); color: var(--auto-off);
+    border: 1px solid var(--border); transition: all 0.25s;
+  }
+  .global-auto-status.on { background: rgba(93,222,106,0.1); color: var(--auto-on); border-color: rgba(93,222,106,0.3); }
 
   #userSearch {
     margin: 10px 12px; padding: 8px 12px; background: var(--panel);
@@ -95,8 +130,8 @@
     scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
   .user-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 10px; border-radius: 10px;
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 9px; border-radius: 10px;
     cursor: pointer; transition: background 0.15s;
     margin-bottom: 3px; position: relative;
   }
@@ -104,13 +139,12 @@
   .user-item.active { background: var(--glow); border: 1px solid rgba(255,107,53,0.3); }
   .user-item.banned { opacity: 0.5; }
 
-  /* ─── AVATAR (sidebar) ─── */
   .u-avatar-wrap { position: relative; flex-shrink: 0; }
   .u-avatar {
-    width: 36px; height: 36px; border-radius: 10px;
+    width: 34px; height: 34px; border-radius: 10px;
     background: var(--glow); border: 1px solid var(--accent);
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.85rem; font-weight: 700; color: var(--accent);
+    font-size: 0.82rem; font-weight: 700; color: var(--accent);
     overflow: hidden;
   }
   .u-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
@@ -119,29 +153,37 @@
     position: absolute; top: -3px; right: -3px;
     width: 10px; height: 10px; border-radius: 50%;
     background: var(--user-acc); border: 2px solid var(--surface);
-    box-shadow: 0 0 6px var(--user-acc); animation: pulse 2s infinite; display: none;
+    box-shadow: 0 0 6px var(--user-acc); animation: blink 2s infinite; display: none;
   }
   .user-item.has-unread .unread-dot { display: block; }
-
   .user-item .u-info { flex: 1; min-width: 0; }
-  .user-item .u-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-item .u-email { font-size: 0.68rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-item .u-name { font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-item .u-email { font-size: 0.66rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ban-badge {
-    font-size: 0.6rem; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem; font-family: 'JetBrains Mono', monospace;
     background: rgba(224,85,85,0.15); color: var(--danger);
     border: 1px solid var(--danger); border-radius: 4px;
-    padding: 1px 5px; flex-shrink: 0;
+    padding: 1px 4px; flex-shrink: 0;
   }
+
+  /* ─── PER-USER AUTO DOT ─── */
+  .auto-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    background: var(--auto-on); box-shadow: 0 0 5px var(--auto-on);
+    animation: blink 1.5s infinite; display: none;
+  }
+  .user-item.auto-active .auto-dot { display: block; }
+
   .no-users {
     text-align: center; color: var(--muted);
     font-size: 0.78rem; font-family: 'JetBrains Mono', monospace; padding: 30px 16px;
   }
-  .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 6px; }
+  .sidebar-footer { padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 5px; }
   .sf-btn {
-    flex: 1; padding: 8px; border-radius: 8px;
+    flex: 1; padding: 7px; border-radius: 8px;
     border: 1px solid var(--border); background: var(--panel);
     color: var(--muted); font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem; cursor: pointer; transition: all 0.2s;
+    font-size: 0.68rem; cursor: pointer; transition: all 0.2s;
     display: flex; align-items: center; justify-content: center; gap: 4px;
   }
   .sf-btn:hover { color: var(--text); border-color: var(--accent); background: var(--glow); }
@@ -155,49 +197,63 @@
     color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; gap: 12px;
   }
   #emptyState .empty-icon { font-size: 2.5rem; }
-  #emptyState p { text-align: center; line-height: 1.6; }
   #chatArea { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
   /* ─── CHAT HEADER ─── */
   #chatHeader {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px 12px; border-bottom: 1px solid var(--border);
-    background: var(--surface);
+    padding: 12px 18px 10px; border-bottom: 1px solid var(--border);
+    background: var(--surface); gap: 10px; flex-wrap: wrap;
   }
-  .chat-user-info { display: flex; align-items: center; gap: 12px; }
+  .chat-user-info { display: flex; align-items: center; gap: 10px; }
   .cu-avatar {
-    width: 38px; height: 38px; border-radius: 50%;
+    width: 36px; height: 36px; border-radius: 50%;
     background: var(--glow); border: 1px solid var(--accent);
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.9rem; font-weight: 700; color: var(--accent);
+    font-size: 0.88rem; font-weight: 700; color: var(--accent);
     overflow: hidden; flex-shrink: 0;
   }
   .cu-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  .cu-name { font-size: 0.95rem; font-weight: 700; }
-  .cu-meta { font-size: 0.7rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-  .header-actions { display: flex; gap: 6px; }
+  .cu-name { font-size: 0.92rem; font-weight: 700; }
+  .cu-meta { font-size: 0.68rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+  .header-actions { display: flex; gap: 5px; flex-wrap: wrap; }
   .icon-btn {
     background: var(--panel); border: 1px solid var(--border);
-    border-radius: 8px; padding: 6px 10px; cursor: pointer;
-    color: var(--muted); font-size: 0.7rem; font-family: 'JetBrains Mono', monospace;
-    display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+    border-radius: 8px; padding: 5px 9px; cursor: pointer;
+    color: var(--muted); font-size: 0.68rem; font-family: 'JetBrains Mono', monospace;
+    display: flex; align-items: center; gap: 4px; transition: all 0.2s;
   }
   .icon-btn:hover { color: var(--text); border-color: var(--accent); background: var(--glow); }
   .icon-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
   .icon-btn.ban-active { color: var(--danger); border-color: var(--danger); background: rgba(224,85,85,0.1); }
-  .icon-btn svg { width: 13px; height: 13px; }
+  .icon-btn svg { width: 12px; height: 12px; }
+
+  /* ─── AUTO TOGGLE (header) ─── */
+  .auto-toggle-btn {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 5px 9px; cursor: pointer;
+    font-size: 0.68rem; font-family: 'JetBrains Mono', monospace;
+    display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    color: var(--muted);
+  }
+  .auto-toggle-btn .auto-pip {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--auto-off); transition: background 0.25s, box-shadow 0.25s;
+  }
+  .auto-toggle-btn.active { border-color: var(--auto-on); color: var(--auto-on); background: rgba(93,222,106,0.08); }
+  .auto-toggle-btn.active .auto-pip { background: var(--auto-on); box-shadow: 0 0 6px var(--auto-on); animation: blink 1.5s infinite; }
 
   /* ─── MODEL BAR ─── */
   #modelBar {
-    display: flex; gap: 6px; padding: 8px 20px;
+    display: flex; gap: 5px; padding: 7px 18px;
     background: var(--bg); border-bottom: 1px solid var(--border);
     overflow-x: auto; scrollbar-width: none;
   }
   #modelBar::-webkit-scrollbar { display: none; }
   .model-chip {
-    flex-shrink: 0; padding: 4px 11px; border-radius: 99px;
+    flex-shrink: 0; padding: 4px 10px; border-radius: 99px;
     border: 1px solid var(--border); background: var(--panel);
-    color: var(--muted); font-size: 0.68rem; font-family: 'JetBrains Mono', monospace;
+    color: var(--muted); font-size: 0.67rem; font-family: 'JetBrains Mono', monospace;
     cursor: pointer; transition: all 0.2s; white-space: nowrap;
   }
   .model-chip:hover { border-color: var(--accent2); color: var(--text); }
@@ -205,36 +261,36 @@
 
   /* ─── MESSAGES ─── */
   #chat {
-    flex: 1; overflow-y: auto; padding: 16px 18px 10px;
+    flex: 1; overflow-y: auto; padding: 14px 16px 8px;
     display: flex; flex-direction: column; gap: 4px;
     scroll-behavior: smooth;
     scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
-  .msg-row { display: flex; align-items: flex-end; gap: 8px; animation: fadeUp 0.22s ease; }
+  .msg-row { display: flex; align-items: flex-end; gap: 7px; animation: fadeUp 0.22s ease; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
   .msg-row.user { flex-direction: row-reverse; }
   .avatar {
-    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.68rem; font-weight: 700; overflow: hidden;
+    font-size: 0.66rem; font-weight: 700; overflow: hidden;
   }
   .avatar.bot { background: var(--glow); border: 1px solid var(--accent); color: var(--accent); border-radius: 7px; }
   .avatar.user { background: rgba(93,222,106,0.15); border: 1px solid var(--user-acc); color: var(--user-acc); }
   .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .bubble-wrap { display: flex; flex-direction: column; max-width: 70%; }
   .msg-row.user .bubble-wrap { align-items: flex-end; }
-  .bubble { padding: 9px 13px; border-radius: 13px; font-size: 0.87rem; line-height: 1.55; word-break: break-word; }
+  .bubble { padding: 8px 12px; border-radius: 12px; font-size: 0.86rem; line-height: 1.55; word-break: break-word; }
   .msg-row.bot .bubble { background: var(--bot-bg); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
   .msg-row.user .bubble { background: var(--user-bg); border: 1px solid rgba(93,222,106,0.25); border-bottom-right-radius: 4px; color: #d4f7d6; }
   .bubble img { max-width: 180px; border-radius: 8px; display: block; margin-top: 2px; }
   .meta {
-    font-size: 0.66rem; color: var(--muted); font-family: 'JetBrains Mono', monospace;
-    margin-top: 3px; padding: 0 3px; display: flex; align-items: center; gap: 6px;
+    font-size: 0.64rem; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+    margin-top: 3px; padding: 0 3px; display: flex; align-items: center; gap: 5px;
   }
   .msg-row.user .meta { flex-direction: row-reverse; }
   .copy-btn, .del-btn {
     cursor: pointer; opacity: 0; transition: opacity 0.2s;
-    font-size: 0.66rem; color: var(--muted); background: none; border: none; padding: 0;
+    font-size: 0.64rem; color: var(--muted); background: none; border: none; padding: 0;
   }
   .bubble-wrap:hover .copy-btn, .bubble-wrap:hover .del-btn { opacity: 1; }
   .copy-btn:hover { color: var(--accent); }
@@ -248,9 +304,9 @@
   @keyframes dot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
 
   /* ─── IMAGE PREVIEW ─── */
-  #imagePreview { display: flex; gap: 6px; padding: 0 18px 6px; flex-wrap: wrap; }
-  .preview-thumb { position: relative; width: 48px; height: 48px; }
-  .preview-thumb img { width: 48px; height: 48px; object-fit: cover; border-radius: 7px; border: 1px solid var(--border); }
+  #imagePreview { display: flex; gap: 6px; padding: 0 16px 5px; flex-wrap: wrap; }
+  .preview-thumb { position: relative; width: 46px; height: 46px; }
+  .preview-thumb img { width: 46px; height: 46px; object-fit: cover; border-radius: 7px; border: 1px solid var(--border); }
   .preview-thumb button {
     position: absolute; top: -5px; right: -5px;
     background: var(--danger); border: none; border-radius: 50%;
@@ -260,42 +316,42 @@
 
   /* ─── DROPZONE ─── */
   #dropzone {
-    margin: 0 18px 8px; border: 1.5px dashed var(--border); border-radius: 10px;
-    padding: 8px 14px; text-align: center; cursor: pointer;
-    color: var(--muted); font-size: 0.76rem; font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
+    margin: 0 16px 7px; border: 1.5px dashed var(--border); border-radius: 10px;
+    padding: 7px 12px; text-align: center; cursor: pointer;
+    color: var(--muted); font-size: 0.74rem; font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
   }
   #dropzone:hover, #dropzone.drag { border-color: var(--accent); color: var(--accent); background: var(--glow); }
 
   /* ─── INPUT BAR ─── */
   #inputBar {
-    display: flex; gap: 7px; align-items: flex-end;
-    padding: 10px 18px 14px; background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; gap: 6px; align-items: flex-end;
+    padding: 8px 16px 12px; background: var(--surface); border-top: 1px solid var(--border);
   }
   #reply {
-    flex: 1; padding: 10px 13px; background: var(--panel); border: 1px solid var(--border);
-    border-radius: 11px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 0.88rem;
-    outline: none; resize: none; min-height: 42px; max-height: 110px;
+    flex: 1; padding: 10px 12px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 0.86rem;
+    outline: none; resize: none; min-height: 40px; max-height: 100px;
     line-height: 1.4; transition: border-color 0.2s;
   }
   #reply:focus { border-color: var(--accent); }
   #reply::placeholder { color: var(--muted); }
   .action-btn {
-    flex-shrink: 0; width: 42px; height: 42px; border-radius: 11px;
+    flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px;
     border: 1px solid var(--border); background: var(--panel); color: var(--muted);
     cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
   }
   .action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--glow); }
   .action-btn.primary { background: linear-gradient(135deg, var(--accent), #e04d00); border-color: transparent; color: white; }
   .action-btn.primary:hover { opacity: 0.85; }
-  .action-btn svg { width: 17px; height: 17px; }
+  .action-btn svg { width: 16px; height: 16px; }
 
   /* ─── BAN BANNER ─── */
   #banBanner {
     display: none; align-items: center; gap: 10px;
-    margin: 0 18px 8px; padding: 10px 14px;
+    margin: 0 16px 7px; padding: 9px 12px;
     background: rgba(224,85,85,0.1); border: 1px solid var(--danger);
     border-radius: 10px; color: var(--danger);
-    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.76rem;
   }
   #banBanner.visible { display: flex; }
 
@@ -303,7 +359,7 @@
   #toast {
     position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: var(--panel); border: 1px solid var(--accent); color: var(--text);
-    padding: 7px 16px; border-radius: 99px; font-size: 0.75rem;
+    padding: 7px 16px; border-radius: 99px; font-size: 0.74rem;
     font-family: 'JetBrains Mono', monospace; pointer-events: none; opacity: 0;
     transition: all 0.3s; box-shadow: 0 0 20px var(--glow); z-index: 100; white-space: nowrap;
   }
@@ -312,49 +368,54 @@
   /* ─── PROFILE PANEL ─── */
   #profilePanel {
     position: fixed; top: 0; right: 0; bottom: 0;
-    width: 280px; background: var(--surface); border-left: 1px solid var(--border);
-    padding: 24px 20px; z-index: 50;
+    width: 270px; background: var(--surface); border-left: 1px solid var(--border);
+    padding: 22px 18px; z-index: 50;
     transform: translateX(100%); transition: transform 0.3s; overflow-y: auto;
   }
   #profilePanel.open { transform: translateX(0); }
-  #profilePanel h3 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 20px; }
+  #profilePanel h3 { font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 18px; }
   .profile-avatar-big {
-    width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 18px;
+    width: 68px; height: 68px; border-radius: 50%; margin: 0 auto 16px;
     background: var(--glow); border: 2px solid var(--accent);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.6rem; font-weight: 700; color: var(--accent); overflow: hidden;
+    font-size: 1.5rem; font-weight: 700; color: var(--accent); overflow: hidden;
   }
   .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  .profile-row { margin-bottom: 14px; }
-  .profile-row label { font-size: 0.68rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
-  .profile-row p { font-size: 0.85rem; margin-top: 3px; }
+  .profile-row { margin-bottom: 12px; }
+  .profile-row label { font-size: 0.65rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
+  .profile-row p { font-size: 0.83rem; margin-top: 3px; }
   .profile-close {
-    position: absolute; top: 16px; right: 16px;
-    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem;
+    position: absolute; top: 14px; right: 14px;
+    background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.1rem;
   }
   .profile-close:hover { color: var(--danger); }
 
-  /* ─── EXPORT MODAL ─── */
-  #exportModal {
+  /* ─── MODALS ─── */
+  #exportModal, #deleteUserModal {
     position: fixed; inset: 0; background: rgba(0,0,0,0.6);
     backdrop-filter: blur(4px); display: none;
     align-items: center; justify-content: center; z-index: 200;
   }
-  #exportModal.open { display: flex; }
+  #exportModal.open, #deleteUserModal.open { display: flex; }
   .modal-box {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 26px; width: 320px; box-shadow: 0 0 40px var(--glow);
+    border-radius: 16px; padding: 24px; width: 320px; box-shadow: 0 0 40px var(--glow);
   }
-  .modal-box h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; color: var(--accent); }
+  .modal-box h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 14px; color: var(--accent); }
+  .modal-box h3.danger { color: var(--danger); }
+  .modal-box p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
   .modal-box button {
     display: block; width: 100%; margin-bottom: 8px; padding: 10px;
     border-radius: 9px; border: 1px solid var(--border);
     background: var(--panel); color: var(--text);
-    font-family: 'Syne', sans-serif; font-size: 0.85rem;
+    font-family: 'Syne', sans-serif; font-size: 0.83rem;
     cursor: pointer; text-align: left; transition: all 0.2s;
   }
   .modal-box button:hover { border-color: var(--accent); background: var(--glow); }
-  .modal-box .close { color: var(--muted); margin-bottom: 0; }
+  .modal-box button.danger-btn { color: var(--danger); border-color: rgba(224,85,85,0.3); }
+  .modal-box button.danger-btn:hover { background: rgba(224,85,85,0.1); border-color: var(--danger); }
+  .modal-box button.close { color: var(--muted); margin-bottom: 0; }
+  .modal-box button.close:hover { color: var(--text); border-color: var(--muted); }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -381,6 +442,16 @@
   </div>
 </div>
 
+<!-- DELETE USER MODAL -->
+<div id="deleteUserModal">
+  <div class="modal-box">
+    <h3 class="danger">🗑 Supprimer le compte</h3>
+    <p id="deleteUserDesc">Confirmer la suppression de ce compte ? Cette action est irréversible. Les messages seront conservés.</p>
+    <button class="danger-btn" onclick="confirmDeleteUser()">Supprimer définitivement</button>
+    <button class="close" onclick="document.getElementById('deleteUserModal').classList.remove('open')">Annuler</button>
+  </div>
+</div>
+
 <!-- PROFILE PANEL -->
 <div id="profilePanel">
   <button class="profile-close" onclick="document.getElementById('profilePanel').classList.remove('open')">✕</button>
@@ -397,21 +468,38 @@
       <div class="status-dot"></div>
       <h2>Admin IA Panel</h2>
     </div>
+
+    <!-- Global automation toggle -->
+    <div class="global-auto-wrap">
+      <div class="global-auto-label">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 0 1.5 8.5 10 10-8.5 1.5-10 10-10 10s-1.5-8.5-10-10c8.5-1.5 10-10 10-10z"/></svg>
+        Auto IA (tous)
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="global-auto-status" id="globalAutoStatus">OFF</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="globalAutoToggle" onchange="onGlobalAutoChange(this)">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
     <input type="text" id="userSearch" placeholder="🔍 Rechercher…" oninput="filterUsers(this.value)">
     <div id="userList">
       <div class="no-users" id="noUsers">Aucun utilisateur inscrit</div>
     </div>
     <div class="sidebar-footer">
       <button class="sf-btn" onclick="document.getElementById('exportModal').classList.add('open')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export
       </button>
       <button class="sf-btn danger" onclick="clearCurrentChat()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>
         Vider
       </button>
       <button class="sf-btn" onclick="doLogout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Sortir
       </button>
     </div>
@@ -435,6 +523,12 @@
           </div>
         </div>
         <div class="header-actions">
+          <!-- Per-user automation toggle -->
+          <button class="auto-toggle-btn" id="userAutoBtn" onclick="toggleUserAuto()">
+            <div class="auto-pip"></div>
+            <span id="userAutoLabel">Auto IA</span>
+          </button>
+
           <button class="icon-btn" onclick="showProfile()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             Profil
@@ -443,13 +537,17 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
             <span id="banBtnLabel">Bannir</span>
           </button>
+          <button class="icon-btn danger" onclick="openDeleteUserModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>
+            Supprimer
+          </button>
           <button class="icon-btn" onclick="document.getElementById('exportModal').classList.add('open')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export
           </button>
           <button class="icon-btn danger" onclick="clearCurrentChat()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><rect x="5" y="6" width="14" height="14" rx="2"/></svg>
-            Vider
+            Vider conv.
           </button>
         </div>
       </div>
@@ -474,13 +572,13 @@
       </div>
       <div id="inputBar">
         <textarea id="reply" placeholder="Répondre à l'utilisateur…" rows="1"></textarea>
-        <button class="action-btn primary" onclick="sendManual()">
+        <button class="action-btn primary" onclick="sendManual()" title="Envoyer manuellement">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
-        <button class="action-btn" onclick="sendAI()">
+        <button class="action-btn" onclick="sendAI()" title="Réponse IA unique">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 0 1.5 8.5 10 10-8.5 1.5-10 10-10 10s-1.5-8.5-10-10c8.5-1.5 10-10 10-10z"/></svg>
         </button>
-        <button class="action-btn" onclick="regenerate()">
+        <button class="action-btn" onclick="regenerate()" title="Régénérer">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         </button>
       </div>
@@ -491,7 +589,13 @@
 <script type="module">
 import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getFirestore, collection, onSnapshot, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getFirestore, collection, onSnapshot, doc, getDoc, updateDoc, deleteDoc,
+  query, where, getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getAuth, deleteUser as fbDeleteUser
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyCLqq79vBEMi0A_3PKrHEJlRpSE3a-sXvY",
@@ -511,13 +615,20 @@ const app   = initializeApp(firebaseConfig);
 const db    = getDatabase(app);
 const store = getFirestore(app);
 
-let currentModel  = "openrouter/free";
-let selectedUser  = null;
-let chatUnsub     = null;
-let pendingImages = [];
-let typingRef     = null;
-let typingTimeout = null;
-let allUsers      = [];
+let currentModel   = "openrouter/free";
+let selectedUser   = null;
+let chatUnsub      = null;
+let pendingImages  = [];
+let typingRef      = null;
+let typingTimeout  = null;
+let allUsers       = [];
+
+// Automation state
+// globalAutoEnabled : all users get auto-reply
+// perUserAuto : { [uid]: true/false }
+let globalAutoEnabled = false;
+let perUserAuto       = {};        // overrides per user
+let aiProcessingUsers = new Set(); // prevent parallel AI calls
 
 /* ─── HELPERS ─── */
 function avatarHTML(u, size = 36, radius = "10px") {
@@ -525,6 +636,11 @@ function avatarHTML(u, size = 36, radius = "10px") {
     return `<img src="${u.photoURL}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:${radius}">`;
   }
   return (u.firstName?.[0] || u.username?.[0] || "?").toUpperCase();
+}
+
+function isAutoActive(uid) {
+  if (uid in perUserAuto) return perUserAuto[uid];
+  return globalAutoEnabled;
 }
 
 /* ─── LOGIN ─── */
@@ -551,7 +667,96 @@ function initAdmin() {
     allUsers = [];
     snap.forEach(d => allUsers.push({ uid: d.id, ...d.data() }));
     renderUserList(allUsers);
+    // Subscribe to each user's conversation for auto-reply
+    allUsers.forEach(u => subscribeUserConv(u));
   });
+}
+
+/* ─── AUTO-REPLY SUBSCRIPTION ─── */
+const convSubscriptions = {};
+function subscribeUserConv(u) {
+  if (convSubscriptions[u.uid]) return; // already subscribed
+  const msgsRef = ref(db, `conversations/${u.uid}/messages`);
+  convSubscriptions[u.uid] = onValue(msgsRef, async snap => {
+    if (!isAutoActive(u.uid)) return;
+    if (aiProcessingUsers.has(u.uid)) return;
+    const data = snap.val();
+    if (!data) return;
+    const vals = Object.values(data).filter(m => !m.typing);
+    if (!vals.length) return;
+    const last = vals[vals.length - 1];
+    // Only trigger if last message is from user
+    if (last.from !== "user") return;
+    // Avoid re-triggering on the same message
+    const lastKey = Object.keys(data)[Object.values(data).indexOf(last)];
+    if (convSubscriptions[u.uid + "_lastHandled"] === lastKey) return;
+    convSubscriptions[u.uid + "_lastHandled"] = lastKey;
+    aiProcessingUsers.add(u.uid);
+    await callAIForUser(u, data);
+    aiProcessingUsers.delete(u.uid);
+  });
+}
+
+async function callAIForUser(u, data) {
+  const msgsRef = ref(db, `conversations/${u.uid}/messages`);
+  const history = Object.values(data)
+    .filter(m => !m.typing && !m.image && m.text)
+    .map(m => ({ role: m.from === "user" ? "user" : "assistant", content: m.text }));
+  const tRef = await push(msgsRef, { from: "bot", text: "", typing: true });
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + API_KEY,
+        "HTTP-Referer": window.location.href,
+        "X-Title": "Admin IA"
+      },
+      body: JSON.stringify({ model: currentModel, messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history] })
+    });
+    const result = await res.json();
+    const aiText = result?.choices?.[0]?.message?.content || "Erreur IA";
+    await remove(tRef);
+    await push(msgsRef, { from: "bot", text: aiText, ts: Date.now() });
+    await clearUnread(u.uid);
+  } catch {
+    await remove(tRef);
+    await push(msgsRef, { from: "bot", text: "⚠️ Erreur IA.", ts: Date.now() });
+  }
+}
+
+/* ─── GLOBAL AUTO TOGGLE ─── */
+window.onGlobalAutoChange = function(checkbox) {
+  globalAutoEnabled = checkbox.checked;
+  const status = document.getElementById("globalAutoStatus");
+  status.textContent = globalAutoEnabled ? "ON" : "OFF";
+  status.classList.toggle("on", globalAutoEnabled);
+  toast(globalAutoEnabled ? "🤖 Auto IA activée pour tous" : "Auto IA désactivée globalement");
+  // Re-subscribe all users if needed
+  allUsers.forEach(u => subscribeUserConv(u));
+  renderUserList(allUsers);
+  // Update current user's button
+  if (selectedUser) updateUserAutoBtn(selectedUser.uid);
+};
+
+/* ─── PER-USER AUTO TOGGLE ─── */
+window.toggleUserAuto = function() {
+  if (!selectedUser) return;
+  const uid = selectedUser.uid;
+  const current = isAutoActive(uid);
+  perUserAuto[uid] = !current;
+  updateUserAutoBtn(uid);
+  subscribeUserConv(selectedUser);
+  renderUserList(allUsers);
+  toast(perUserAuto[uid] ? `🤖 Auto IA ON pour ${selectedUser.firstName}` : `Auto IA OFF pour ${selectedUser.firstName}`);
+};
+
+function updateUserAutoBtn(uid) {
+  const btn = document.getElementById("userAutoBtn");
+  const label = document.getElementById("userAutoLabel");
+  const active = isAutoActive(uid);
+  btn.classList.toggle("active", active);
+  label.textContent = active ? "Auto IA : ON" : "Auto IA : OFF";
 }
 
 /* ─── USER LIST ─── */
@@ -569,8 +774,15 @@ function renderUserList(users) {
   });
 
   sorted.forEach(u => {
-    const hasUnread = !!u.lastUserMsgTs;
-    const classes = ["user-item", selectedUser?.uid === u.uid ? "active" : "", u.banned ? "banned" : "", hasUnread ? "has-unread" : ""].filter(Boolean).join(" ");
+    const hasUnread  = !!u.lastUserMsgTs;
+    const autoOn     = isAutoActive(u.uid);
+    const classes = ["user-item",
+      selectedUser?.uid === u.uid ? "active" : "",
+      u.banned ? "banned" : "",
+      hasUnread ? "has-unread" : "",
+      autoOn ? "auto-active" : ""
+    ].filter(Boolean).join(" ");
+
     const item = document.createElement("div");
     item.className = classes;
     item.dataset.uid = u.uid;
@@ -583,6 +795,7 @@ function renderUserList(users) {
         <div class="u-name">${u.firstName} ${u.lastName}</div>
         <div class="u-email">@${u.username || "—"} · ${u.country || ""}</div>
       </div>
+      <div class="auto-dot" title="Auto IA actif"></div>
       ${u.banned ? '<span class="ban-badge">BANNI</span>' : ""}
     `;
     item.onclick = () => selectUser(u);
@@ -605,13 +818,13 @@ function selectUser(u) {
   chatArea.classList.remove("hidden");
   chatArea.style.display = "flex";
 
-  // Header avatar (round)
   const cuAv = document.getElementById("cuAvatar");
-  cuAv.innerHTML = avatarHTML(u, 38, "50%");
+  cuAv.innerHTML = avatarHTML(u, 36, "50%");
   document.getElementById("cuName").textContent = `${u.firstName} ${u.lastName}`;
   document.getElementById("cuMeta").textContent = `@${u.username} · ${u.email}`;
 
   updateBanUI(u.banned);
+  updateUserAutoBtn(u.uid);
   document.querySelectorAll(".user-item").forEach(el => el.classList.toggle("active", el.dataset.uid === u.uid));
 
   if (chatUnsub) chatUnsub();
@@ -646,6 +859,35 @@ window.toggleBan = async function() {
   } catch(e) { toast("Erreur : " + e.message); }
 };
 
+/* ─── DELETE USER (admin side) ─── */
+window.openDeleteUserModal = function() {
+  if (!selectedUser) return toast("Aucun utilisateur sélectionné");
+  document.getElementById("deleteUserDesc").textContent =
+    `Supprimer définitivement le compte de ${selectedUser.firstName} ${selectedUser.lastName} (@${selectedUser.username}) ? Cette action est irréversible. Les messages seront conservés.`;
+  document.getElementById("deleteUserModal").classList.add("open");
+};
+
+window.confirmDeleteUser = async function() {
+  if (!selectedUser) return;
+  document.getElementById("deleteUserModal").classList.remove("open");
+  const u = selectedUser;
+  try {
+    // Delete Firestore docs
+    await deleteDoc(doc(store, "users", u.uid));
+    await deleteDoc(doc(store, "userList", u.uid));
+    // Remove from local list
+    allUsers = allUsers.filter(x => x.uid !== u.uid);
+    selectedUser = null;
+    document.getElementById("chatArea").classList.add("hidden");
+    document.getElementById("emptyState").style.display = "flex";
+    if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+    renderUserList(allUsers);
+    toast(`✓ Compte de ${u.firstName} supprimé`);
+  } catch(e) {
+    toast("Erreur suppression : " + e.message);
+  }
+};
+
 /* ─── PROFILE PANEL ─── */
 window.showProfile = function() {
   if (!selectedUser) return;
@@ -662,7 +904,8 @@ window.showProfile = function() {
     <div class="profile-row"><label>Date de naissance</label><p>${u.dob || "—"}</p></div>
     <div class="profile-row"><label>Pays</label><p>${u.country || "—"}</p></div>
     <div class="profile-row"><label>Statut</label><p style="color:${u.banned ? 'var(--danger)' : 'var(--user-acc)'}">${u.banned ? "🚫 Banni" : "✓ Actif"}</p></div>
-    <div class="profile-row"><label>UID</label><p style="font-size:0.7rem;color:var(--muted);font-family:'JetBrains Mono',monospace">${u.uid}</p></div>
+    <div class="profile-row"><label>Auto IA</label><p style="color:${isAutoActive(u.uid) ? 'var(--auto-on)' : 'var(--muted)'}">${isAutoActive(u.uid) ? "🤖 Activée" : "Désactivée"}</p></div>
+    <div class="profile-row"><label>UID</label><p style="font-size:0.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace">${u.uid}</p></div>
   `;
   document.getElementById("profilePanel").classList.add("open");
 };
@@ -680,7 +923,7 @@ window.toast = function(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
 };
 
 /* ─── CHAT RENDER ─── */
@@ -720,7 +963,7 @@ function renderChat(data) {
       const time = m.ts ? new Date(m.ts).toLocaleTimeString("fr-FR", {hour:"2-digit",minute:"2-digit"}) : "";
       meta.innerHTML = `
         <span>${isUser ? "Utilisateur" : "Bot"} ${time ? "· "+time : ""}</span>
-        ${!m.image ? `<button class="copy-btn" onclick="copyMsg(this,'${key}')">⎘ copier</button>` : ""}
+        ${!m.image ? `<button class="copy-btn" onclick="copyMsg(this,'${key}')">⎘</button>` : ""}
         <button class="del-btn" onclick="deleteMsg('${key}')">✕</button>
       `;
     }
@@ -740,8 +983,8 @@ window.copyMsg = function(btn, key) {
     const m = snap.val();
     if (m?.text) {
       navigator.clipboard.writeText(m.text);
-      btn.textContent = "✓ copié";
-      setTimeout(() => btn.textContent = "⎘ copier", 1500);
+      btn.textContent = "✓";
+      setTimeout(() => btn.textContent = "⎘", 1500);
     }
   });
 };
@@ -759,7 +1002,7 @@ window.clearCurrentChat = function() {
 const replyEl = document.getElementById("reply");
 replyEl.addEventListener("input", async () => {
   replyEl.style.height = "auto";
-  replyEl.style.height = Math.min(replyEl.scrollHeight, 110) + "px";
+  replyEl.style.height = Math.min(replyEl.scrollHeight, 100) + "px";
   if (!selectedUser) return;
   const msgsRef = ref(db, `conversations/${selectedUser.uid}/messages`);
   if (replyEl.value.trim() && !typingRef)
@@ -807,7 +1050,7 @@ window.sendManual = async function() {
   }, 1000);
 };
 
-/* ─── SEND AI ─── */
+/* ─── SEND AI (manual trigger) ─── */
 async function buildHistory() {
   if (!selectedUser) return [];
   const snap = await get(ref(db, `conversations/${selectedUser.uid}/messages`));
